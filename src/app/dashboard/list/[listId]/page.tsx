@@ -16,6 +16,7 @@ import { subscribeItems, createItem, updateItem, deleteItem, reorderItems, type 
 import { subscribeLists } from "@/lib/lists";
 import type { StashItem, StashList } from "@/types";
 import ItemModal from "@/components/ItemModal";
+import ConfirmModal from "@/components/ConfirmModal";
 
 export default function ListDetailPage() {
   const { listId } = useParams<{ listId: string }>();
@@ -137,98 +138,98 @@ function SortableItem({
   onDelete: () => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
-  const [confirm, setConfirm] = useState(false);
+  const [showDelete, setShowDelete] = useState(false);
 
   const style = { transform: CSS.Transform.toString(transform), transition };
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className={`group flex gap-4 p-4 rounded-xl border bg-surface transition-colors ${
-        isDragging ? "border-violet-500 opacity-80 shadow-lg" : "border-border hover:border-violet-500/40"
-      }`}
-    >
-      {/* Drag handle */}
-      <button
-        {...attributes}
-        {...listeners}
-        className="flex items-center text-muted hover:text-foreground cursor-grab active:cursor-grabbing mt-1 shrink-0"
-        aria-label="Drag to reorder"
+    <>
+      <div
+        ref={setNodeRef}
+        style={style}
+        className={`group flex gap-4 p-4 rounded-xl border bg-surface transition-colors ${
+          isDragging ? "border-violet-500 opacity-80 shadow-lg" : "border-border hover:border-violet-500/40"
+        }`}
       >
-        ⠿
-      </button>
+        {/* Drag handle */}
+        <button
+          {...attributes}
+          {...listeners}
+          className="flex items-center text-muted hover:text-foreground cursor-grab active:cursor-grabbing mt-1 shrink-0"
+          aria-label="Drag to reorder"
+        >
+          ⠿
+        </button>
 
-      {/* Image */}
-      {item.image ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={item.image}
-          alt={item.name}
-          className="w-16 h-16 rounded-lg object-cover border border-border shrink-0"
-        />
-      ) : (
-        <div className="w-16 h-16 rounded-lg border border-border bg-surface-2 flex items-center justify-center text-muted text-xl shrink-0">
-          ◈
-        </div>
-      )}
-
-      {/* Content */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0">
-            <h3 className="font-medium text-foreground text-sm truncate">{item.name}</h3>
-            {item.price && <span className="text-violet-400 text-sm font-medium">{item.price}</span>}
+        {/* Image */}
+        {item.image ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={item.image}
+            alt={item.name}
+            className="w-16 h-16 rounded-lg object-cover border border-border shrink-0"
+          />
+        ) : (
+          <div className="w-16 h-16 rounded-lg border border-border bg-surface-2 flex items-center justify-center text-muted text-xl shrink-0">
+            ◈
           </div>
-          {/* Actions */}
-          <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-            {item.url && (
-              <a href={item.url} target="_blank" rel="noopener noreferrer"
-                className="p-1.5 rounded-md text-muted hover:text-foreground hover:bg-surface-2 text-xs"
-                title="Open link" onClick={(e) => e.stopPropagation()}>
-                ↗
-              </a>
-            )}
-            <button onClick={onEdit}
-              className="p-1.5 rounded-md text-muted hover:text-foreground hover:bg-surface-2 text-xs cursor-pointer">
-              ✎
-            </button>
-            {confirm ? (
-              <>
-                <button onClick={onDelete}
-                  className="px-2 py-1 rounded-md bg-red-500/20 text-red-400 text-xs cursor-pointer">
-                  Delete
-                </button>
-                <button onClick={() => setConfirm(false)}
-                  className="px-2 py-1 text-muted text-xs cursor-pointer">
-                  Cancel
-                </button>
-              </>
-            ) : (
-              <button onClick={() => setConfirm(true)}
+        )}
+
+        {/* Content */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <h3 className="font-medium text-foreground text-sm truncate">{item.name}</h3>
+              {item.price && <span className="text-violet-400 text-sm font-medium">{item.price}</span>}
+            </div>
+            <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+              {item.url && (
+                <a href={item.url} target="_blank" rel="noopener noreferrer"
+                  className="p-1.5 rounded-md text-muted hover:text-foreground hover:bg-surface-2 text-xs"
+                  title="Open link">
+                  ↗
+                </a>
+              )}
+              <button onClick={onEdit}
+                className="p-1.5 rounded-md text-muted hover:text-foreground hover:bg-surface-2 text-xs cursor-pointer">
+                ✎
+              </button>
+              <button onClick={() => setShowDelete(true)}
                 className="p-1.5 rounded-md text-muted hover:text-red-400 hover:bg-surface-2 text-xs cursor-pointer">
                 🗑
               </button>
-            )}
+            </div>
           </div>
-        </div>
 
-        {item.description && (
-          <p className="text-xs text-muted mt-1 line-clamp-2">{item.description}</p>
-        )}
-        {item.notes && (
-          <p className="text-xs text-muted/70 mt-1 italic line-clamp-1">"{item.notes}"</p>
-        )}
-        {item.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-2">
-            {item.tags.map((t) => (
-              <span key={t} className="px-1.5 py-0.5 rounded-full bg-violet-600/10 text-violet-400 text-xs">
-                {t}
-              </span>
-            ))}
-          </div>
-        )}
+          {item.description && (
+            <p className="text-xs text-muted mt-1 line-clamp-2">{item.description}</p>
+          )}
+          {item.notes && (
+            <p className="text-xs text-muted/70 mt-1 italic line-clamp-1">"{item.notes}"</p>
+          )}
+          {item.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-2">
+              {item.tags.map((t) => (
+                <span key={t} className="px-1.5 py-0.5 rounded-full bg-violet-600/10 text-violet-400 text-xs">
+                  {t}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+
+      {showDelete && (
+        <ConfirmModal
+          title="Delete item?"
+          description={`"${item.name}" will be permanently removed from this stash.`}
+          confirmLabel="delete"
+          confirmPlaceholder="type delete to confirm"
+          actionLabel="Delete item"
+          onConfirm={onDelete}
+          onClose={() => setShowDelete(false)}
+        />
+      )}
+    </>
   );
 }
