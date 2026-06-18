@@ -62,6 +62,19 @@ export default function ListDetailPage() {
     await reorderItems(reordered.map(({ id, order }) => ({ id, order })));
   }
 
+  const [search, setSearch] = useState("");
+
+  const filtered = search.trim()
+    ? items.filter((i) => {
+        const q = search.toLowerCase();
+        return (
+          i.name.toLowerCase().includes(q) ||
+          i.description.toLowerCase().includes(q) ||
+          i.tags.some((t) => t.includes(q))
+        );
+      })
+    : items;
+
   if (!list) return null;
 
   return (
@@ -83,8 +96,7 @@ export default function ListDetailPage() {
               </span>
             </div>
             {list.description && <p className="text-sm text-muted mt-1">{list.description}</p>}
-            <p className="text-xs text-muted mt-1">{items.length} item{items.length !== 1 ? "s" : ""}</p>
-          </div>
+            <p className="text-xs text-muted mt-1">{items.length} item{items.length !== 1 ? "s" : ""}</p>          </div>
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={() => router.push(`/dashboard/list/${list.id}/settings`)}
@@ -104,17 +116,31 @@ export default function ListDetailPage() {
         </div>
       </div>
 
+      {/* Search */}
+      {items.length > 0 && (
+        <div className="mb-6">
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by name, description, or tag…"
+            className="input max-w-sm"
+          />
+        </div>
+      )}
+
       {/* Items */}
-      {items.length === 0 ? (
+      {filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 text-center">
           <div className="text-4xl mb-4 opacity-30">⊹</div>
-          <p className="text-muted text-sm">No items yet. Add your first one.</p>
+          <p className="text-muted text-sm">
+            {search ? `No items match "${search}"` : "No items yet. Add your first one."}
+          </p>
         </div>
       ) : (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <SortableContext items={items.map((i) => i.id)} strategy={verticalListSortingStrategy}>
+          <SortableContext items={filtered.map((i) => i.id)} strategy={verticalListSortingStrategy}>
             <div className="space-y-3">
-              {items.map((item) => (
+              {filtered.map((item) => (
                 <SortableItem
                   key={item.id}
                   item={item}

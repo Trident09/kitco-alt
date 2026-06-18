@@ -105,16 +105,19 @@ export default function StashSettingsPage() {
             ? "This stash is public. Anyone with the link can view it."
             : "This stash is private. Only you can see it."}
         </p>
-        <button
-          onClick={() => updateList(list.id, { isPublic: !list.isPublic })}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer border ${
-            list.isPublic
-              ? "border-border text-muted hover:text-foreground hover:bg-surface-2"
-              : "border-violet-500/50 bg-violet-600/10 text-violet-400 hover:bg-violet-600/20"
-          }`}
-        >
-          {list.isPublic ? "Make private" : "Make public"}
-        </button>
+        <div className="flex items-center gap-3 flex-wrap">
+          <button
+            onClick={() => updateList(list.id, { isPublic: !list.isPublic })}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer border ${
+              list.isPublic
+                ? "border-border text-muted hover:text-foreground hover:bg-surface-2"
+                : "border-violet-500/50 bg-violet-600/10 text-violet-400 hover:bg-violet-600/20"
+            }`}
+          >
+            {list.isPublic ? "Make private" : "Make public"}
+          </button>
+          {list.isPublic && <CopyLink listId={list.id} />}
+        </div>
       </section>
 
       {/* Danger zone */}
@@ -143,5 +146,26 @@ export default function StashSettingsPage() {
         />
       )}
     </div>
+  );
+}
+
+function CopyLink({ listId }: { listId: string }) {
+  const [copied, setCopied] = useState(false);
+  const url = `${typeof window !== "undefined" ? window.location.origin : ""}/s/${listId}`;
+
+  function copy() {
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
+  return (
+    <button
+      onClick={copy}
+      className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-border text-sm text-muted hover:text-foreground hover:bg-surface-2 transition-colors cursor-pointer"
+    >
+      {copied ? "✓ Copied" : "Copy share link"}
+    </button>
   );
 }

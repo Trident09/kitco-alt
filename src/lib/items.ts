@@ -28,11 +28,17 @@ function toItem(id: string, data: Record<string, unknown>): StashItem {
 
 export function subscribeItems(listId: string, cb: (items: StashItem[]) => void) {
   const q = query(collection(db, "items"), where("listId", "==", listId));
+  let lastCount = -1;
   return onSnapshot(q, (snap) => {
     const items = snap.docs
       .map((d) => toItem(d.id, d.data() as Record<string, unknown>))
       .sort((a, b) => a.order - b.order);
     cb(items);
+    // sync itemCount back to the list doc when it changes
+    if (items.length !== lastCount) {
+      lastCount = items.length;
+      updateDoc(doc(db, "lists", listId), { itemCount: items.length }).catch(() => {});
+    }
   });
 }
 
