@@ -1,7 +1,7 @@
 import {
   collection, doc, addDoc, updateDoc, deleteDoc,
   query, where, onSnapshot, serverTimestamp,
-  Timestamp, writeBatch,
+  Timestamp, writeBatch, getDocs,
 } from "firebase/firestore";
 import { db } from "./firebase";
 import type { StashItem } from "@/types";
@@ -30,11 +30,12 @@ export function subscribeItems(listId: string, cb: (items: StashItem[]) => void)
   const q = query(collection(db, "items"), where("listId", "==", listId));
   let lastCount = -1;
   return onSnapshot(q, (snap) => {
+    // skip local pending writes to avoid premature count updates
+    if (snap.metadata.hasPendingWrites) return;
     const items = snap.docs
       .map((d) => toItem(d.id, d.data() as Record<string, unknown>))
       .sort((a, b) => a.order - b.order);
     cb(items);
-    // sync itemCount back to the list doc when it changes
     if (items.length !== lastCount) {
       lastCount = items.length;
       updateDoc(doc(db, "lists", listId), { itemCount: items.length }).catch(() => {});
@@ -60,6 +61,15 @@ export async function updateItem(id: string, patch: Partial<Omit<StashItem, "id"
 
 export async function deleteItem(id: string) {
   await deleteDoc(doc(db, "items", id));
+}
+
+export async function deleteItemsByList(listId: string) {
+  const q = query(collection(db, "items"), where("listId", "==", listId));
+  const snap = await getDocs(q);
+  if (snap.empty) return;
+  const batch = writeBatch(db);
+  snap.docs.forEach((d) => batch.delete(d.ref));
+  await batch.commit();
 }
 
 export async function reorderItems(items: { id: string; order: number }[]) {

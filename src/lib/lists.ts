@@ -5,6 +5,7 @@ import {
 } from "firebase/firestore";
 import { db } from "./firebase";
 import type { StashList } from "@/types";
+import { deleteItemsByList } from "./items";
 
 function toList(id: string, data: Record<string, unknown>): StashList {
   const ts = (v: unknown) =>
@@ -44,10 +45,14 @@ export async function createList(uid: string, name: string): Promise<string> {
   return ref.id;
 }
 
-export async function updateList(id: string, patch: Partial<Pick<StashList, "name" | "description" | "isPublic">>) {
+export async function updateList(
+  id: string,
+  patch: Partial<Pick<StashList, "name" | "description" | "isPublic">>
+) {
   await updateDoc(doc(db, "lists", id), { ...patch, updatedAt: serverTimestamp() });
 }
 
 export async function deleteList(id: string) {
+  await deleteItemsByList(id);
   await deleteDoc(doc(db, "lists", id));
 }

@@ -107,7 +107,7 @@ export default function StashSettingsPage() {
         </p>
         <div className="flex items-center gap-3 flex-wrap">
           <button
-            onClick={() => updateList(list.id, { isPublic: !list.isPublic })}
+            onClick={() => { updateList(list.id, { isPublic: !list.isPublic }).catch(console.error); }}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer border ${
               list.isPublic
                 ? "border-border text-muted hover:text-foreground hover:bg-surface-2"

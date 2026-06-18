@@ -1,7 +1,6 @@
-import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { doc, getDoc, collection, query, where, getDocs, Timestamp } from "firebase/firestore";
 import { db } from "./firebase";
 import type { StashList, StashItem } from "@/types";
-import { Timestamp } from "firebase/firestore";
 
 function ts(v: unknown) {
   return v instanceof Timestamp ? v.toMillis() : typeof v === "number" ? v : Date.now();
