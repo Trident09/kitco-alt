@@ -1,36 +1,29 @@
 @import "tailwindcss";
 
-:root {
-  --bg: #0d0b14;
-  --surface: #16111f;
-  --border: #2a2040;
-  --purple: #7c3aed;
-  --purple-light: #9d5cf5;
-  --text: #e8e2f5;
-  --muted: #7a7090;
-}
-
 @theme inline {
-  --color-bg: var(--bg);
-  --color-surface: var(--surface);
-  --color-border: var(--border);
-  --color-purple: var(--purple);
-  --color-purple-light: var(--purple-light);
-  --color-text: var(--text);
-  --color-muted: var(--muted);
+  --color-background: #0d0d12;
+  --color-surface: #16161f;
+  --color-surface-2: #1e1e2a;
+  --color-border: #2a2a3a;
+  --color-foreground: #e8e8f0;
+  --color-muted: #6b6b80;
+
+  --color-violet-50: #f5f3ff;
+  --color-violet-100: #ede9fe;
+  --color-violet-200: #ddd6fe;
+  --color-violet-300: #c4b5fd;
+  --color-violet-400: #a78bfa;
+  --color-violet-500: #8b5cf6;
+  --color-violet-600: #7c3aed;
+  --color-violet-700: #6d28d9;
+  --color-violet-800: #5b21b6;
+  --color-violet-900: #4c1d95;
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-html {
-  color-scheme: dark;
-}
-
 body {
-  background: var(--bg);
-  color: var(--text);
-}
-
-* {
-  border-color: var(--border);
+  background: var(--color-background);
+  color: var(--color-foreground);
 }

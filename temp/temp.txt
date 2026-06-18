@@ -1,0 +1,37 @@
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyAfJnEv3c89h5_9digygP8_C1G03CyWDsQ",
+  authDomain: "kitko-alt.firebaseapp.com",
+  projectId: "kitko-alt",
+  storageBucket: "kitko-alt.firebasestorage.app",
+  messagingSenderId: "402086328795",
+  appId: "1:402086328795:web:b4ec057709b56061940ffe",
+  measurementId: "G-DM6VD2JNKK"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+--------------------------------------
+login method - whatever is best for firebase 
+multiple user can sign up but keep it single user for now 
+each item list - whatever is neccesry 
+yes images i think custom or whatever is okay - whatevr is more convinient - scraping can also be done to keep track of the links of the images - use imgur maybe 
+free form list - there wil be list name and list desc and whatevry you want you do 
+no list will be public only if the user wants to 
+no profile page will be also private unless the user wants to make it public
+frontend stack whateber you want 
+hosting i will use vercel - first upload to github and then use vercel to host it 
+affiliate - keep out for now 
+desktop first approach - make it responsive as we go 
+
+
+
+
