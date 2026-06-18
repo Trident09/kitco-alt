@@ -20,7 +20,7 @@ export default function DashboardPage() {
     <main className="min-h-screen bg-background p-8">
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-semibold text-foreground">My Kits</h1>
+          <h1 className="text-2xl font-semibold text-foreground">My Stashes</h1>
           <button
             onClick={() => signOut(auth)}
             className="text-sm text-muted hover:text-foreground transition-colors cursor-pointer"

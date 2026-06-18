@@ -26,26 +26,94 @@ export default function LoginPage() {
   if (loading) return null;
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-background">
-      <div className="flex flex-col items-center gap-8 p-10 rounded-2xl border border-border bg-surface w-full max-w-sm">
-        {/* Logo / wordmark */}
-        <div className="flex flex-col items-center gap-2">
-          <div className="w-10 h-10 rounded-xl bg-violet-600 flex items-center justify-center text-white font-bold text-lg select-none">
-            K
-          </div>
-          <h1 className="text-xl font-semibold tracking-tight text-foreground">Kits</h1>
-          <p className="text-sm text-muted text-center">Your personal product lists, organized.</p>
+    <div className="min-h-screen bg-background flex">
+      {/* Left — branding / feature highlights */}
+      <div className="hidden lg:flex flex-col justify-between w-1/2 p-14 border-r border-border">
+        <Logo />
+
+        <div className="space-y-10">
+          <h2 className="text-4xl font-semibold leading-snug text-foreground">
+            Everything you want to buy,<br />
+            <span className="text-violet-400">organized in one place.</span>
+          </h2>
+
+          <ul className="space-y-5">
+            {features.map((f) => (
+              <li key={f.title} className="flex items-start gap-4">
+                <span className="mt-0.5 text-violet-500 text-xl">{f.icon}</span>
+                <div>
+                  <p className="text-sm font-medium text-foreground">{f.title}</p>
+                  <p className="text-sm text-muted">{f.desc}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
 
-        <button
-          onClick={handleGoogleSignIn}
-          className="w-full flex items-center justify-center gap-3 px-4 py-2.5 rounded-lg bg-surface-2 border border-border text-foreground text-sm font-medium hover:border-violet-500 hover:text-violet-400 transition-colors cursor-pointer"
-        >
-          <GoogleIcon />
-          Continue with Google
-        </button>
+        <p className="text-xs text-muted">© 2026 Stashly. All rights reserved.</p>
       </div>
-    </main>
+
+      {/* Right — sign in */}
+      <div className="flex flex-1 items-center justify-center p-8">
+        <div className="w-full max-w-sm flex flex-col gap-8">
+          {/* Mobile logo */}
+          <div className="flex lg:hidden">
+            <Logo />
+          </div>
+
+          <div>
+            <h1 className="text-2xl font-semibold text-foreground">Welcome back</h1>
+            <p className="mt-1 text-sm text-muted">Sign in to access your stashes.</p>
+          </div>
+
+          <button
+            onClick={handleGoogleSignIn}
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl bg-surface border border-border text-foreground text-sm font-medium hover:border-violet-500 hover:bg-surface-2 transition-all cursor-pointer"
+          >
+            <GoogleIcon />
+            Continue with Google
+          </button>
+
+          <p className="text-xs text-muted text-center leading-relaxed">
+            By signing in, you agree to keep your stashes private unless you choose to share them.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const features = [
+  {
+    icon: "◈",
+    title: "Multiple lists, any theme",
+    desc: "Create separate lists for tech gear, travel essentials, home finds — anything.",
+  },
+  {
+    icon: "⬡",
+    title: "Rich product details",
+    desc: "Save the URL, price, image, your notes — everything you need to decide later.",
+  },
+  {
+    icon: "◎",
+    title: "Private by default",
+    desc: "Your lists are yours alone. Share only when you're ready.",
+  },
+  {
+    icon: "⊹",
+    title: "Drag to reorder",
+    desc: "Arrange items exactly how you want them, your way.",
+  },
+];
+
+function Logo() {
+  return (
+    <div className="flex items-center gap-2.5">
+      <div className="w-8 h-8 rounded-lg bg-violet-600 flex items-center justify-center text-white font-bold text-sm select-none">
+        S
+      </div>
+      <span className="text-lg font-semibold tracking-tight text-foreground">Stashly</span>
+    </div>
   );
 }
 

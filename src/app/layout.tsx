@@ -6,8 +6,8 @@ import { AuthProvider } from "@/context/AuthContext";
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
 
 export const metadata: Metadata = {
-  title: "Kits",
-  description: "Your personal product lists",
+  title: "Stashly",
+  description: "Your personal product lists, organized.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
