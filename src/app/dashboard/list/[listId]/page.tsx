@@ -76,17 +76,31 @@ export default function ListDetailPage() {
         </button>
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-semibold text-foreground">{list.name}</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-semibold text-foreground">{list.name}</h1>
+              <span className={`text-xs px-2 py-0.5 rounded-full ${list.isPublic ? "bg-violet-600/20 text-violet-400" : "bg-surface-2 text-muted"}`}>
+                {list.isPublic ? "Public" : "Private"}
+              </span>
+            </div>
             {list.description && <p className="text-sm text-muted mt-1">{list.description}</p>}
             <p className="text-xs text-muted mt-1">{items.length} item{items.length !== 1 ? "s" : ""}</p>
           </div>
-          <button
-            onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium shrink-0 cursor-pointer"
-          >
-            <span className="text-base leading-none">+</span>
-            Add item
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => router.push(`/dashboard/list/${list.id}/settings`)}
+              className="p-2 rounded-lg text-muted hover:text-foreground hover:bg-surface border border-transparent hover:border-border transition-colors cursor-pointer"
+              title="Stash settings"
+            >
+              ⚙
+            </button>
+            <button
+              onClick={() => setShowModal(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium cursor-pointer"
+            >
+              <span className="text-base leading-none">+</span>
+              Add item
+            </button>
+          </div>
         </div>
       </div>
 
