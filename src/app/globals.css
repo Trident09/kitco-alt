@@ -27,3 +27,21 @@ body {
   background: var(--color-background);
   color: var(--color-foreground);
 }
+
+.input {
+  width: 100%;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: var(--color-foreground);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.input:focus {
+  border-color: var(--color-violet-500);
+}
+.input::placeholder {
+  color: var(--color-muted);
+}

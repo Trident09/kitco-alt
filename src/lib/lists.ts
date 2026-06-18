@@ -1,6 +1,6 @@
 import {
   collection, doc, addDoc, updateDoc, deleteDoc,
-  query, where, orderBy, onSnapshot, serverTimestamp,
+  query, where, onSnapshot, serverTimestamp,
   Timestamp,
 } from "firebase/firestore";
 import { db } from "./firebase";
@@ -22,14 +22,13 @@ function toList(id: string, data: Record<string, unknown>): StashList {
 }
 
 export function subscribeLists(uid: string, cb: (lists: StashList[]) => void) {
-  const q = query(
-    collection(db, "lists"),
-    where("uid", "==", uid),
-    orderBy("createdAt", "desc")
-  );
-  return onSnapshot(q, (snap) =>
-    cb(snap.docs.map((d) => toList(d.id, d.data() as Record<string, unknown>)))
-  );
+  const q = query(collection(db, "lists"), where("uid", "==", uid));
+  return onSnapshot(q, (snap) => {
+    const lists = snap.docs
+      .map((d) => toList(d.id, d.data() as Record<string, unknown>))
+      .sort((a, b) => b.createdAt - a.createdAt);
+    cb(lists);
+  });
 }
 
 export async function createList(uid: string, name: string): Promise<string> {

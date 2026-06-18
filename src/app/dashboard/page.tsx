@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { subscribeLists, createList, updateList, deleteList } from "@/lib/lists";
 import type { StashList } from "@/types";
@@ -93,6 +94,7 @@ export default function DashboardPage() {
 }
 
 function ListCard({ list }: { list: StashList }) {
+  const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(list.name);
   const [confirm, setConfirm] = useState(false);
@@ -110,7 +112,10 @@ function ListCard({ list }: { list: StashList }) {
   }
 
   return (
-    <div className="group relative flex flex-col gap-3 p-5 rounded-xl border border-border bg-surface hover:border-violet-500/50 transition-colors">
+    <div
+      className="group relative flex flex-col gap-3 p-5 rounded-xl border border-border bg-surface hover:border-violet-500/50 transition-colors cursor-pointer"
+      onClick={() => !editing && !confirm && router.push(`/dashboard/list/${list.id}`)}
+    >
       {/* Name */}
       {editing ? (
         <input
@@ -142,7 +147,10 @@ function ListCard({ list }: { list: StashList }) {
       </div>
 
       {/* Actions row */}
-      <div className="flex items-center justify-between mt-auto pt-2 border-t border-border">
+      <div
+        className="flex items-center justify-between mt-auto pt-2 border-t border-border"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Public toggle */}
         <button
           onClick={() => updateList(list.id, { isPublic: !list.isPublic })}
