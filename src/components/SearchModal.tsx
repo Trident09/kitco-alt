@@ -37,6 +37,7 @@ export default function SearchModal({ existingTags = [], onAdd, onClose }: Props
   const [results, setResults] = useState<SearchResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [searched, setSearched] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
   const [addingId, setAddingId] = useState<string | null>(null); // url of item being added
 
   // per-result state: scraped data + tag selection
@@ -62,14 +63,21 @@ export default function SearchModal({ existingTags = [], onAdd, onClose }: Props
 
   /* ── search ── */
   async function runSearch(q: string) {
-    if (!q.trim()) { setResults([]); setSearched(false); return; }
+    if (!q.trim()) { setResults([]); setSearched(false); setSearchError(null); return; }
     setSearching(true);
     setSearched(false);
+    setSearchError(null);
     try {
       const res = await fetch(`/api/search?q=${encodeURIComponent(q.trim())}`);
       const data = await res.json();
-      setResults(data.results ?? []);
+      if (data.error) {
+        setSearchError(data.error);
+        setResults([]);
+      } else {
+        setResults(data.results ?? []);
+      }
     } catch {
+      setSearchError("Search failed — check your connection.");
       setResults([]);
     } finally {
       setSearching(false);
@@ -182,11 +190,29 @@ export default function SearchModal({ existingTags = [], onAdd, onClose }: Props
             <div className="flex flex-col items-center justify-center py-16 text-center px-8">
               <div className="text-4xl mb-3 opacity-30">🛍️</div>
               <p className="text-muted text-sm">Type a product name to search the web</p>
-              <p className="text-muted/60 text-xs mt-1">Results from DuckDuckGo · click any to add to your stash</p>
+              <p className="text-muted/60 text-xs mt-1">Results from Brave Search · click any to add to your stash</p>
             </div>
           )}
 
-          {searched && results.length === 0 && !searching && (
+          {searched && searchError && (
+            <div className="flex flex-col items-center justify-center py-16 text-center px-8 gap-3">
+              <div className="text-3xl opacity-40">⚠️</div>
+              <p className="text-foreground text-sm font-medium">Search unavailable</p>
+              <p className="text-muted text-xs max-w-sm leading-relaxed">{searchError}</p>
+              {searchError.includes("BRAVE_SEARCH_API_KEY") && (
+                <a
+                  href="https://brave.com/search/api/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-1 px-3 py-1.5 rounded-lg bg-violet-600/10 border border-violet-500/20 text-violet-400 text-xs hover:bg-violet-600/20 transition-colors"
+                >
+                  Get a free Brave Search API key →
+                </a>
+              )}
+            </div>
+          )}
+
+          {searched && !searchError && results.length === 0 && !searching && (
             <div className="flex flex-col items-center justify-center py-16 text-center px-8">
               <div className="text-3xl mb-3 opacity-30">◈</div>
               <p className="text-muted text-sm">No results found</p>
@@ -351,7 +377,7 @@ export default function SearchModal({ existingTags = [], onAdd, onClose }: Props
 
         {/* ── Footer ── */}
         <div className="px-4 py-2.5 border-t border-border flex items-center justify-between text-[11px] text-muted">
-          <span>Results from DuckDuckGo</span>
+          <span>Results from Brave Search</span>
           <span>Press <kbd className="px-1 py-0.5 rounded bg-surface-2 border border-border font-mono text-[10px]">Esc</kbd> to close</span>
         </div>
       </div>
