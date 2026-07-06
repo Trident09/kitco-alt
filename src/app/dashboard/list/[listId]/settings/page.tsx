@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { subscribeLists, updateList, deleteList } from "@/lib/lists";
+import { useToast } from "@/context/ToastContext";
 import type { StashList } from "@/types";
 import ConfirmModal from "@/components/ConfirmModal";
 
@@ -11,6 +12,7 @@ export default function StashSettingsPage() {
   const { listId } = useParams<{ listId: string }>();
   const { user } = useAuth();
   const router = useRouter();
+  const { showToast } = useToast();
   const [list, setList] = useState<StashList | null>(null);
 
   // Rename state
@@ -40,12 +42,21 @@ export default function StashSettingsPage() {
     if (!name || !list) return;
     await updateList(list.id, { name, description: newDesc.trim() });
     setRenameSaved(true);
+    showToast("Settings saved");
     setTimeout(() => setRenameSaved(false), 2000);
+  }
+
+  async function handleToggleVisibility() {
+    if (!list) return;
+    const next = !list.isPublic;
+    await updateList(list.id, { isPublic: next });
+    showToast(next ? "Stash is now public" : "Stash is now private");
   }
 
   async function handleDelete() {
     if (!list) return;
     await deleteList(list.id);
+    showToast(`"${list.name}" deleted`, "error");
     router.replace("/dashboard");
   }
 
@@ -107,7 +118,7 @@ export default function StashSettingsPage() {
         </p>
         <div className="flex items-center gap-3 flex-wrap">
           <button
-            onClick={() => { updateList(list.id, { isPublic: !list.isPublic }).catch(console.error); }}
+            onClick={handleToggleVisibility}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer border ${
               list.isPublic
                 ? "border-border text-muted hover:text-foreground hover:bg-surface-2"

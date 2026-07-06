@@ -20,6 +20,7 @@ export interface StashItem {
   description: string;
   notes: string;
   tags: string[];
+  purchased: boolean;  // mark as purchased
   order: number;
   createdAt: number;
   updatedAt: number;

@@ -28,6 +28,15 @@ export default function ConfirmModal({
 
   useEffect(() => { inputRef.current?.focus(); }, []);
 
+  // Escape to close
+  useEffect(() => {
+    function onEscape(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    window.addEventListener("keydown", onEscape);
+    return () => window.removeEventListener("keydown", onEscape);
+  }, [onClose]);
+
   const isValid = confirmLabel ? value === confirmLabel : true;
 
   function handleSubmit(e: React.FormEvent) {

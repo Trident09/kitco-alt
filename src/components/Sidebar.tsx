@@ -12,9 +12,7 @@ export default function Sidebar() {
     <aside className="w-56 shrink-0 h-screen sticky top-0 flex flex-col border-r border-border bg-surface px-4 py-6">
       {/* Logo */}
       <div className="flex items-center gap-2.5 mb-8 px-1">
-        <div className="w-7 h-7 rounded-md bg-violet-600 flex items-center justify-center text-white font-bold text-xs select-none">
-          S
-        </div>
+        <Image src="/LOGO.svg" alt="Stashly" width={26} height={26} className="invert" />
         <span className="text-base font-semibold tracking-tight text-foreground">Stashly</span>
       </div>
 

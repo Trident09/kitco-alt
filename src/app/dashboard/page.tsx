@@ -4,10 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { subscribeLists, createList } from "@/lib/lists";
+import { useToast } from "@/context/ToastContext";
 import type { StashList } from "@/types";
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const { showToast } = useToast();
   const [lists, setLists] = useState<StashList[]>([]);
   const [creating, setCreating] = useState(false);
   const [newName, setNewName] = useState("");
@@ -28,6 +30,7 @@ export default function DashboardPage() {
     setCreating(false);
     setNewName("");
     await createList(user.uid, name);
+    showToast(`"${name}" created`);
   }
 
   return (
@@ -71,10 +74,7 @@ export default function DashboardPage() {
       )}
 
       {lists.length === 0 && !creating ? (
-        <div className="flex flex-col items-center justify-center py-24 text-center">
-          <div className="text-4xl mb-4 opacity-30">◈</div>
-          <p className="text-muted text-sm">No stashes yet. Create your first one.</p>
-        </div>
+        <EmptyState onNew={() => setCreating(true)} />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {lists.map((list) => (
@@ -86,11 +86,45 @@ export default function DashboardPage() {
   );
 }
 
+function EmptyState({ onNew }: { onNew: () => void }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-24 text-center gap-5">
+      <div className="w-16 h-16 rounded-2xl bg-violet-600/10 border border-violet-500/20 flex items-center justify-center text-3xl">
+        ◈
+      </div>
+      <div>
+        <p className="text-foreground font-medium mb-1">No stashes yet</p>
+        <p className="text-muted text-sm max-w-xs">
+          Create your first stash to start saving products, links, and wishlist items — all in one place.
+        </p>
+      </div>
+      <button
+        onClick={onNew}
+        className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium transition-colors cursor-pointer"
+      >
+        <span className="text-base leading-none">+</span>
+        Create your first stash
+      </button>
+    </div>
+  );
+}
+
 function ListCard({ list }: { list: StashList }) {
   const router = useRouter();
+  const [copied, setCopied] = useState(false);
+
+  function handleCopy(e: React.MouseEvent) {
+    e.stopPropagation();
+    const url = `${window.location.origin}/s/${list.id}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
   return (
     <div
-      className="flex flex-col gap-3 p-5 rounded-xl border border-border bg-surface hover:border-violet-500/50 transition-colors cursor-pointer"
+      className="group relative flex flex-col gap-3 p-5 rounded-xl border border-border bg-surface hover:border-violet-500/50 transition-colors cursor-pointer"
       onClick={() => router.push(`/dashboard/list/${list.id}`)}
     >
       <h3 className="font-medium text-foreground text-base truncate">{list.name}</h3>
@@ -103,6 +137,17 @@ function ListCard({ list }: { list: StashList }) {
         <span className={list.isPublic ? "text-violet-400" : ""}>{list.isPublic ? "Public" : "Private"}</span>
         <span>·</span>
         <span>{new Date(list.createdAt).toLocaleDateString()}</span>
+
+        {/* Copy link button for public stashes */}
+        {list.isPublic && (
+          <button
+            onClick={handleCopy}
+            title="Copy share link"
+            className="ml-auto flex items-center gap-1 px-2 py-0.5 rounded-md bg-violet-600/10 border border-violet-500/20 text-violet-400 hover:bg-violet-600/20 transition-colors text-xs cursor-pointer opacity-0 group-hover:opacity-100"
+          >
+            {copied ? "✓ Copied" : "⎘ Share"}
+          </button>
+        )}
       </div>
     </div>
   );

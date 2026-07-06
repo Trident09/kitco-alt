@@ -20,6 +20,7 @@ function toItem(id: string, data: Record<string, unknown>): StashItem {
     description: (data.description as string) ?? "",
     notes: (data.notes as string) ?? "",
     tags: (data.tags as string[]) ?? [],
+    purchased: (data.purchased as boolean) ?? false,
     order: (data.order as number) ?? 0,
     createdAt: ts(data.createdAt),
     updatedAt: ts(data.updatedAt),
@@ -30,24 +31,28 @@ export function subscribeItems(listId: string, cb: (items: StashItem[]) => void)
   const q = query(collection(db, "items"), where("listId", "==", listId));
   let lastCount = -1;
   return onSnapshot(q, (snap) => {
-    // skip local pending writes to avoid premature count updates
-    if (snap.metadata.hasPendingWrites) return;
     const items = snap.docs
       .map((d) => toItem(d.id, d.data() as Record<string, unknown>))
       .sort((a, b) => a.order - b.order);
     cb(items);
-    if (items.length !== lastCount) {
+    // Only update itemCount once writes are confirmed, to avoid premature counts
+    if (!snap.metadata.hasPendingWrites && items.length !== lastCount) {
       lastCount = items.length;
       updateDoc(doc(db, "lists", listId), { itemCount: items.length }).catch(() => {});
     }
+  }, (err) => {
+    console.error("[subscribeItems] error:", err);
   });
 }
 
-export type ItemInput = Omit<StashItem, "id" | "createdAt" | "updatedAt" | "order">;
+export type ItemInput = Omit<StashItem, "id" | "createdAt" | "updatedAt" | "order"> & {
+  purchased?: boolean;
+};
 
 export async function createItem(input: ItemInput, order: number): Promise<string> {
   const ref = await addDoc(collection(db, "items"), {
     ...input,
+    purchased: input.purchased ?? false,
     order,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
