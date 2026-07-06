@@ -40,6 +40,7 @@ export async function getPublicItems(listId: string): Promise<StashItem[]> {
         description: data.description ?? "",
         notes: data.notes ?? "",
         tags: data.tags ?? [],
+        purchased: data.purchased ?? false,
         order: data.order ?? 0,
         createdAt: ts(data.createdAt),
         updatedAt: ts(data.updatedAt),
