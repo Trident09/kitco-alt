@@ -5,73 +5,82 @@ export interface SearchResult {
   url: string;
   displayUrl: string;
   snippet: string;
-}
-
-function displayUrl(raw: string): string {
-  try {
-    return new URL(raw).hostname.replace(/^www\./, "");
-  } catch {
-    return raw;
-  }
+  image?: string;
+  price?: string;
+  brand?: string;
 }
 
 export async function GET(request: NextRequest) {
   const q = request.nextUrl.searchParams.get("q");
   if (!q?.trim()) return NextResponse.json({ results: [] });
 
-  const apiKey = process.env.BRAVE_SEARCH_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json(
-      { results: [], error: "BRAVE_SEARCH_API_KEY is not set. Get a free key at https://brave.com/search/api/" },
-      { status: 503 }
-    );
-  }
-
   try {
-    const url = new URL("https://api.search.brave.com/res/v1/web/search");
-    url.searchParams.set("q", q.trim());
-    url.searchParams.set("count", "8");
-    url.searchParams.set("search_lang", "en");
-    url.searchParams.set("country", "IN");
-    url.searchParams.set("safesearch", "moderate");
+    const apiUrl = `https://api.upcitemdb.com/prod/trial/search?s=${encodeURIComponent(q.trim())}&type=product`;
 
-    const res = await fetch(url.toString(), {
+    const res = await fetch(apiUrl, {
       headers: {
+        "User-Agent": "Stashly/1.0",
         "Accept": "application/json",
-        "Accept-Encoding": "gzip",
-        "X-Subscription-Token": apiKey,
       },
       signal: AbortSignal.timeout(8000),
     });
 
+    if (res.status === 429) {
+      return NextResponse.json({ results: [], error: "too_fast" }, { status: 429 });
+    }
+
     if (!res.ok) {
-      const text = await res.text();
-      console.error("[/api/search] Brave API error:", res.status, text);
-      return NextResponse.json({ results: [], error: `Search API error: ${res.status}` }, { status: res.status });
+      return NextResponse.json({ results: [] });
     }
 
     const data = await res.json();
 
-    // Brave returns results under data.web.results
-    const raw: Array<{
-      title?: string;
-      url?: string;
-      meta_url?: { hostname?: string };
-      description?: string;
-    }> = data?.web?.results ?? [];
+    if (data.code === "TOO_FAST") {
+      return NextResponse.json({ results: [], error: "too_fast" }, { status: 429 });
+    }
 
-    const results: SearchResult[] = raw
-      .filter((r) => r.url && r.title)
-      .map((r) => ({
-        title: r.title ?? "",
-        url: r.url ?? "",
-        displayUrl: r.meta_url?.hostname?.replace(/^www\./, "") ?? displayUrl(r.url ?? ""),
-        snippet: r.description ?? "",
-      }));
+    type UPCItem = {
+      title?: string;
+      description?: string;
+      brand?: string;
+      images?: string[];
+      lowest_recorded_price?: number;
+      highest_recorded_price?: number;
+      offers?: Array<{ link?: string; domain?: string; merchant?: string; price?: number }>;
+    };
+
+    const items: UPCItem[] = data.items ?? [];
+
+    const results: SearchResult[] = items
+      .filter((item) => item.title)
+      .slice(0, 8)
+      .map((item) => {
+        // Pick best offer link, fallback to upcitemdb search
+        const offer = item.offers?.[0];
+        const url = offer?.link ?? `https://www.google.com/search?q=${encodeURIComponent(item.title ?? "")}`;
+        const domain = offer?.domain ?? "google.com";
+
+        // Pick best price
+        const price = offer?.price
+          ? `$${offer.price}`
+          : item.lowest_recorded_price
+            ? `$${item.lowest_recorded_price}`
+            : "";
+
+        return {
+          title: item.title ?? "",
+          url,
+          displayUrl: domain.replace(/^www\./, ""),
+          snippet: item.description?.slice(0, 180) ?? "",
+          image: item.images?.[0] ?? "",
+          price,
+          brand: item.brand ?? "",
+        };
+      });
 
     return NextResponse.json({ results });
   } catch (err) {
     console.error("[/api/search] error:", err);
-    return NextResponse.json({ results: [], error: "Search failed" }, { status: 500 });
+    return NextResponse.json({ results: [] });
   }
 }
