@@ -16,6 +16,7 @@ import { subscribeItems, createItem, updateItem, deleteItem, reorderItems } from
 import { subscribeLists } from "@/lib/lists";
 import type { StashItem, StashList } from "@/types";
 import ItemModal from "@/components/ItemModal";
+import SearchModal from "@/components/SearchModal";
 import ConfirmModal from "@/components/ConfirmModal";
 import { useToast } from "@/context/ToastContext";
 
@@ -76,6 +77,7 @@ export default function ListDetailPage() {
   const [items, setItems] = useState<StashItem[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [editItem, setEditItem] = useState<StashItem | null>(null);
+  const [showSearch, setShowSearch] = useState(false);
   const [search, setSearch] = useState("");
   const [activeTag, setActiveTag] = useState<string | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
@@ -105,6 +107,7 @@ export default function ListDetailPage() {
       if (inInput) return;
       if (e.key === "n" || e.key === "N") { e.preventDefault(); setShowModal(true); return; }
       if (e.key === "/") { e.preventDefault(); searchRef.current?.focus(); return; }
+      if (e.key === "f" || e.key === "F") { e.preventDefault(); setShowSearch(true); return; }
       if (e.key === "s" || e.key === "S") { e.preventDefault(); router.push(`/dashboard/list/${listId}/settings`); return; }
       if (e.key === "Backspace") { e.preventDefault(); router.push("/dashboard"); return; }
     }
@@ -234,6 +237,15 @@ export default function ListDetailPage() {
               ⚙
             </button>
             <button
+              onClick={() => setShowSearch(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-surface border border-border hover:border-violet-500/50 text-foreground text-sm font-medium cursor-pointer transition-colors"
+              title="Search web for products (F)"
+            >
+              <span className="text-base leading-none">🔍</span>
+              Search web
+              <kbd className="hidden sm:inline-flex items-center text-[10px] px-1 py-0.5 rounded bg-surface-2 text-muted font-mono ml-1">F</kbd>
+            </button>
+            <button
               onClick={() => setShowModal(true)}
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium cursor-pointer"
               title="Add item (N)"
@@ -358,6 +370,17 @@ export default function ListDetailPage() {
       )}
 
       {/* ── Modals ── */}
+      {showSearch && (
+        <SearchModal
+          existingTags={allTags}
+          onAdd={async (data) => {
+            if (!user) return;
+            await createItem({ ...data, listId, uid: user.uid, purchased: false }, items.length);
+            showToast(`"${data.name}" added`);
+          }}
+          onClose={() => setShowSearch(false)}
+        />
+      )}
       {showModal && (
         <ItemModal
           existingTags={allTags}

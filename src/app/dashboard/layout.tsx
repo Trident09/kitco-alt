@@ -8,6 +8,7 @@ import KeyboardShortcutsLegend from "@/components/KeyboardShortcutsLegend";
 
 const SHORTCUTS = [
   { keys: ["N"],         label: "Add new item" },
+  { keys: ["F"],         label: "Search web for products" },
   { keys: ["/"],         label: "Focus search" },
   { keys: ["S"],         label: "Open settings" },
   { keys: ["Backspace"], label: "Go back to dashboard" },
