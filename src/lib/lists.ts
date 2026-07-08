@@ -19,6 +19,8 @@ function toList(id: string, data: Record<string, unknown>): StashList {
     createdAt: ts(data.createdAt),
     updatedAt: ts(data.updatedAt),
     itemCount: (data.itemCount as number) ?? 0,
+    tagOrder: (data.tagOrder as string[]) ?? [],
+    cover: (data.cover as string) ?? "",
   };
 }
 
@@ -47,7 +49,7 @@ export async function createList(uid: string, name: string): Promise<string> {
 
 export async function updateList(
   id: string,
-  patch: Partial<Pick<StashList, "name" | "description" | "isPublic">>
+  patch: Partial<Pick<StashList, "name" | "description" | "isPublic" | "tagOrder" | "cover">>
 ) {
   await updateDoc(doc(db, "lists", id), { ...patch, updatedAt: serverTimestamp() });
 }

@@ -7,6 +7,8 @@ export interface StashList {
   createdAt: number;
   updatedAt: number;
   itemCount: number;
+  tagOrder: string[];   // user-defined tag sort order
+  cover: string;        // cover illustration id, e.g. "grid" | "wave" | ...
 }
 
 export interface StashItem {

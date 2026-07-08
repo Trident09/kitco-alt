@@ -20,6 +20,8 @@ export async function getPublicList(listId: string): Promise<StashList | null> {
     createdAt: ts(d.createdAt),
     updatedAt: ts(d.updatedAt),
     itemCount: d.itemCount ?? 0,
+    tagOrder: (d.tagOrder as string[]) ?? [],
+    cover: (d.cover as string) ?? "",
   };
 }
 
