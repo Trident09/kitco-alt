@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Footer from "@/components/Footer";
+import BackToDashboard from "@/components/BackToDashboard";
 
 export default function AboutPage() {
   return (
@@ -17,12 +18,7 @@ export default function AboutPage() {
             <Link href="/" className="text-sm text-muted hover:text-foreground transition-colors px-3 py-1.5">
               Home
             </Link>
-            <Link
-              href="/login"
-              className="text-sm font-medium px-4 py-1.5 rounded-lg bg-violet-600 hover:bg-violet-500 text-white transition-colors"
-            >
-              Get started
-            </Link>
+            <BackToDashboard />
           </nav>
         </div>
       </header>

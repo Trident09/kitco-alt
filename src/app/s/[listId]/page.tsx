@@ -46,7 +46,12 @@ export default function SharePage() {
     getPublicList(listId).then((l) => {
       if (!l) { setList("not-found"); return; }
       setList(l);
-      getPublicItems(listId).then(setItems);
+      getPublicItems(listId).then(setItems).catch((err) => {
+        console.error("[public] getPublicItems error:", err?.code, err?.message);
+      });
+    }).catch((err) => {
+      console.error("[public] getPublicList error:", err?.code, err?.message);
+      setList("not-found");
     });
   }, [listId]);
 
