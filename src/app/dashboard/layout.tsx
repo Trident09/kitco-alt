@@ -25,9 +25,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   if (loading || !user) return null;
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex h-screen bg-background">
       <Sidebar />
-      <main className="flex-1 overflow-y-auto">{children}</main>
+      <main className="flex-1 overflow-hidden">{children}</main>
       <KeyboardShortcutsLegend shortcuts={SHORTCUTS} />
     </div>
   );

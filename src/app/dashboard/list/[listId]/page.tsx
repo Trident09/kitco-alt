@@ -12,11 +12,13 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useAuth } from "@/context/AuthContext";
-import { subscribeItems, createItem, updateItem, deleteItem, reorderItems } from "@/lib/items";
-import { subscribeLists } from "@/lib/lists";
+import { subscribeItems, createItem, updateItem, deleteItem, reorderItems, bulkUpdateItemTags } from "@/lib/items";
+import { subscribeLists, updateList } from "@/lib/lists";
 import type { StashItem, StashList } from "@/types";
 import ItemModal from "@/components/ItemModal";
 import ConfirmModal from "@/components/ConfirmModal";
+import ManageTagsModal from "@/components/ManageTagsModal";
+import DashboardFooter from "@/components/DashboardFooter";
 import { useToast } from "@/context/ToastContext";
 
 type ItemFormData = Pick<StashItem, "name" | "url" | "image" | "price" | "description" | "notes" | "tags">;
@@ -34,31 +36,30 @@ function formatTotal(total: number): string {
 }
 
 /** Build ordered tag sections from a list of items.
- *  - Tags appear in the order they were first encountered (by item.order).
+ *  - If tagOrder is provided, tags appear in that order; remaining tags are appended alphabetically.
  *  - Items with multiple tags appear under each of their tags.
  *  - Untagged items are returned separately.
  */
-function buildTagSections(items: StashItem[]): {
+function buildTagSections(items: StashItem[], tagOrder: string[] = []): {
   sections: { tag: string; items: StashItem[] }[];
   untagged: StashItem[];
 } {
-  const tagOrder: string[] = [];
   const tagMap = new Map<string, StashItem[]>();
 
   for (const item of items) {
     for (const t of item.tags) {
-      if (!tagMap.has(t)) {
-        tagOrder.push(t);
-        tagMap.set(t, []);
-      }
+      if (!tagMap.has(t)) tagMap.set(t, []);
       tagMap.get(t)!.push(item);
     }
   }
 
-  // Sort tag names alphabetically
-  const sorted = [...tagOrder].sort();
+  // Start with user-defined order (only tags that actually exist in the current set)
+  const ordered: string[] = tagOrder.filter((t) => tagMap.has(t));
+  // Append any tags not in tagOrder, sorted alphabetically
+  const remaining = [...tagMap.keys()].filter((t) => !ordered.includes(t)).sort();
+  const finalOrder = [...ordered, ...remaining];
 
-  const sections = sorted.map((tag) => ({ tag, items: tagMap.get(tag)! }));
+  const sections = finalOrder.map((tag) => ({ tag, items: tagMap.get(tag)! }));
   const untagged = items.filter((i) => i.tags.length === 0);
 
   return { sections, untagged };
@@ -76,6 +77,7 @@ export default function ListDetailPage() {
   const [items, setItems] = useState<StashItem[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [editItem, setEditItem] = useState<StashItem | null>(null);
+  const [showManageTags, setShowManageTags] = useState(false);
   const [search, setSearch] = useState("");
   const [activeTag, setActiveTag] = useState<string | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
@@ -88,7 +90,7 @@ export default function ListDetailPage() {
       const found = lists.find((l) => l.id === listId);
       if (found) setList(found);
     });
-    const unsub2 = subscribeItems(listId, setItems);
+    const unsub2 = subscribeItems(listId, user.uid, setItems);
     return () => { unsub1(); unsub2(); };
   }, [user, listId]);
 
@@ -98,7 +100,7 @@ export default function ListDetailPage() {
       const tag = (e.target as HTMLElement).tagName;
       const inInput = tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
 
-      if (e.key === "Escape" && !showModal && !editItem) {
+      if (e.key === "Escape" && !showModal && !editItem && !showManageTags) {
         if (search || activeTag) { setSearch(""); setActiveTag(null); }
         return;
       }
@@ -110,7 +112,7 @@ export default function ListDetailPage() {
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [listId, router, search, activeTag, showModal, editItem]);
+  }, [listId, router, search, activeTag, showModal, editItem, showManageTags]);
 
   async function handleAdd(data: ItemFormData) {
     if (!user) return;
@@ -135,6 +137,21 @@ export default function ListDetailPage() {
     const next = !item.purchased;
     await updateItem(item.id, { purchased: next });
     showToast(next ? `Marked "${item.name}" as purchased` : `Unmarked "${item.name}"`);
+  }
+
+  async function handleManageTagsSave(
+    newOrder: string[],
+    renames: Record<string, string>,
+    deletions: string[],
+  ) {
+    // 1. Persist the new tag order on the list document
+    await updateList(listId, { tagOrder: newOrder });
+
+    // 2. Apply renames and deletions to all items in the list
+    await bulkUpdateItemTags(listId, renames, deletions);
+
+    setShowManageTags(false);
+    showToast("Tags updated");
   }
 
   async function handleDragEnd(event: DragEndEvent) {
@@ -170,7 +187,7 @@ export default function ListDetailPage() {
   }, []);
 
   // Build sections from filtered items
-  const { sections, untagged } = buildTagSections(filtered);
+  const { sections, untagged } = buildTagSections(filtered, list?.tagOrder ?? []);
 
   // Total section count for display
   const sectionCount = sections.length + (untagged.length > 0 ? 1 : 0);
@@ -178,116 +195,135 @@ export default function ListDetailPage() {
   if (!list) return null;
 
   return (
-    <div className="p-8 max-w-4xl mx-auto">
+    <div className="h-full flex flex-col">
 
-      {/* ── Header ── */}
-      <div className="mb-8">
-        <button
-          onClick={() => router.push("/dashboard")}
-          className="text-xs text-muted hover:text-foreground mb-4 flex items-center gap-1 cursor-pointer"
-        >
-          ← Back
-        </button>
+      {/* ── Sticky header zone ── */}
+      <div className="shrink-0 bg-background border-b border-border">
+        <div className="px-8 pt-8 pb-4 max-w-4xl mx-auto">
 
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-2xl font-semibold text-foreground">{list.name}</h1>
-              <span className={`text-xs px-2 py-0.5 rounded-full ${
-                list.isPublic ? "bg-violet-600/20 text-violet-400" : "bg-surface-2 text-muted"
-              }`}>
-                {list.isPublic ? "Public" : "Private"}
-              </span>
-            </div>
-            {list.description && (
-              <p className="text-sm text-muted mt-1">{list.description}</p>
-            )}
-            <div className="flex items-center gap-3 mt-1.5 text-xs text-muted flex-wrap">
-              <span>{items.length} item{items.length !== 1 ? "s" : ""}</span>
-              {hasAnyTags && (
-                <>
-                  <span>·</span>
-                  <span>{allTags.length} tag{allTags.length !== 1 ? "s" : ""}</span>
-                </>
-              )}
-              {totalPrice > 0 && (
-                <>
-                  <span>·</span>
-                  <span className="text-foreground font-medium">{formatTotal(totalPrice)} total</span>
-                </>
-              )}
-              {purchasedCount > 0 && (
-                <>
-                  <span>·</span>
-                  <span className="text-green-400">{purchasedCount} purchased</span>
-                </>
-              )}
+          {/* Back + title row */}
+          <div className="mb-4">
+            <button
+              onClick={() => router.push("/dashboard")}
+              className="text-xs text-muted hover:text-foreground mb-4 flex items-center gap-1 cursor-pointer"
+            >
+              ← Back
+            </button>
+
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-2xl font-semibold text-foreground">{list.name}</h1>
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${
+                    list.isPublic ? "bg-violet-600/20 text-violet-400" : "bg-surface-2 text-muted"
+                  }`}>
+                    {list.isPublic ? "Public" : "Private"}
+                  </span>
+                </div>
+                {list.description && (
+                  <p className="text-sm text-muted mt-1">{list.description}</p>
+                )}
+                <div className="flex items-center gap-3 mt-1.5 text-xs text-muted flex-wrap">
+                  <span>{items.length} item{items.length !== 1 ? "s" : ""}</span>
+                  {hasAnyTags && (
+                    <>
+                      <span>·</span>
+                      <span>{allTags.length} tag{allTags.length !== 1 ? "s" : ""}</span>
+                    </>
+                  )}
+                  {totalPrice > 0 && (
+                    <>
+                      <span>·</span>
+                      <span className="text-foreground font-medium">{formatTotal(totalPrice)} total</span>
+                    </>
+                  )}
+                  {purchasedCount > 0 && (
+                    <>
+                      <span>·</span>
+                      <span className="text-green-400">{purchasedCount} purchased</span>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={() => router.push(`/dashboard/list/${list.id}/settings`)}
+                  className="p-2 rounded-lg text-muted hover:text-foreground hover:bg-surface border border-transparent hover:border-border transition-colors cursor-pointer"
+                  title="Stash settings (S)"
+                >
+                  ⚙
+                </button>
+                {hasAnyTags && (
+                  <button
+                    onClick={() => setShowManageTags(true)}
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-muted hover:text-foreground hover:bg-surface border border-transparent hover:border-border transition-colors cursor-pointer"
+                    title="Manage tag order"
+                  >
+                    <span className="text-base leading-none">⠿</span>
+                    Tags
+                  </button>
+                )}
+                <button
+                  onClick={() => setShowModal(true)}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium cursor-pointer"
+                  title="Add item (N)"
+                >
+                  <span className="text-base leading-none">+</span>
+                  Add item
+                  <kbd className="hidden sm:inline-flex items-center text-[10px] px-1 py-0.5 rounded bg-violet-700/60 text-violet-300 font-mono ml-1">N</kbd>
+                </button>
+              </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
-            <button
-              onClick={() => router.push(`/dashboard/list/${list.id}/settings`)}
-              className="p-2 rounded-lg text-muted hover:text-foreground hover:bg-surface border border-transparent hover:border-border transition-colors cursor-pointer"
-              title="Stash settings (S)"
-            >
-              ⚙
-            </button>
-            <button
-              onClick={() => setShowModal(true)}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium cursor-pointer"
-              title="Add item (N)"
-            >
-              <span className="text-base leading-none">+</span>
-              Add item
-              <kbd className="hidden sm:inline-flex items-center text-[10px] px-1 py-0.5 rounded bg-violet-700/60 text-violet-300 font-mono ml-1">N</kbd>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Search + tag filter pills ── */}
-      {items.length > 0 && (
-        <div className="mb-8 space-y-3">
-          <input
-            ref={searchRef}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Escape") { setSearch(""); searchRef.current?.blur(); }
-            }}
-            placeholder="Search items…"
-            className="input max-w-sm"
-          />
-          {allTags.length > 0 && (
-            <div className="flex flex-wrap gap-1.5">
-              {allTags.map((tag) => (
-                <button
-                  key={tag}
-                  onClick={() => handleTagClick(tag)}
-                  className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-colors cursor-pointer ${
-                    activeTag === tag
-                      ? "bg-violet-600 border-violet-600 text-white"
-                      : "bg-violet-600/10 border-violet-500/20 text-violet-400 hover:bg-violet-600/20"
-                  }`}
-                >
-                  {tag}
-                </button>
-              ))}
-              {activeTag && (
-                <button
-                  onClick={() => setActiveTag(null)}
-                  className="px-2.5 py-1 rounded-full text-xs text-muted hover:text-foreground border border-border transition-colors cursor-pointer"
-                >
-                  Clear ✕
-                </button>
+          {/* Search + tag filter pills */}
+          {items.length > 0 && (
+            <div className="space-y-3 pb-1">
+              <input
+                ref={searchRef}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") { setSearch(""); searchRef.current?.blur(); }
+                }}
+                placeholder="Search items…"
+                className="input max-w-sm"
+              />
+              {allTags.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {allTags.map((tag) => (
+                    <button
+                      key={tag}
+                      onClick={() => handleTagClick(tag)}
+                      className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-colors cursor-pointer ${
+                        activeTag === tag
+                          ? "bg-violet-600 border-violet-600 text-white"
+                          : "bg-violet-600/10 border-violet-500/20 text-violet-400 hover:bg-violet-600/20"
+                      }`}
+                    >
+                      {tag}
+                    </button>
+                  ))}
+                  {activeTag && (
+                    <button
+                      onClick={() => setActiveTag(null)}
+                      className="px-2.5 py-1 rounded-full text-xs text-muted hover:text-foreground border border-border transition-colors cursor-pointer"
+                    >
+                      Clear ✕
+                    </button>
+                  )}
+                </div>
               )}
             </div>
           )}
-        </div>
-      )}
 
-      {/* ── Content ── */}
+        </div>
+      </div>
+
+      {/* ── Scrollable content ── */}
+      <div className="overflow-y-auto flex-1 flex flex-col">
+        <div className="px-8 py-8 max-w-4xl mx-auto w-full flex-1">
       {filtered.length === 0 ? (
         /* Empty state */
         <div className="flex flex-col items-center justify-center py-24 text-center">
@@ -358,6 +394,10 @@ export default function ListDetailPage() {
       )}
 
       {/* ── Modals ── */}
+        </div>{/* end max-w-4xl */}
+        <DashboardFooter />
+      </div>{/* end scrollable content */}
+
       {showModal && (
         <ItemModal
           existingTags={allTags}
@@ -371,6 +411,14 @@ export default function ListDetailPage() {
           existingTags={allTags}
           onSave={handleEdit}
           onClose={() => setEditItem(null)}
+        />
+      )}
+      {showManageTags && (
+        <ManageTagsModal
+          tags={allTags}
+          tagOrder={list.tagOrder}
+          onSave={handleManageTagsSave}
+          onClose={() => setShowManageTags(false)}
         />
       )}
     </div>

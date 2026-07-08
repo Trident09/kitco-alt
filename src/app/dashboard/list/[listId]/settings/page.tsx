@@ -7,6 +7,7 @@ import { subscribeLists, updateList, deleteList } from "@/lib/lists";
 import { useToast } from "@/context/ToastContext";
 import type { StashList } from "@/types";
 import ConfirmModal from "@/components/ConfirmModal";
+import DashboardFooter from "@/components/DashboardFooter";
 
 export default function StashSettingsPage() {
   const { listId } = useParams<{ listId: string }>();
@@ -63,7 +64,8 @@ export default function StashSettingsPage() {
   if (!list) return null;
 
   return (
-    <div className="p-8 max-w-xl mx-auto">
+    <div className="h-full overflow-y-auto flex flex-col">
+    <div className="p-8 max-w-xl mx-auto flex-1">
       {/* Back */}
       <button
         onClick={() => router.push(`/dashboard/list/${listId}`)}
@@ -156,6 +158,8 @@ export default function StashSettingsPage() {
           onClose={() => setShowDelete(false)}
         />
       )}
+    </div>
+    <DashboardFooter />
     </div>
   );
 }
