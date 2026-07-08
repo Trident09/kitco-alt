@@ -53,6 +53,12 @@ export default function AboutPage() {
           <p>
             No ads. No tracking. No algorithm telling you what to buy. Just your lists.
           </p>
+          <p>
+            The honest origin story: I used to use{" "}
+            <span className="text-foreground font-medium">kit.co</span> for exactly this.
+            It was great — clean, simple, shareable lists of products you loved. Then it shut down.
+            So I built my own.
+          </p>
         </div>
 
         {/* Values */}
