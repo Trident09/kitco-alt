@@ -7,7 +7,7 @@ export default function AboutPage() {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Nav */}
       <header className="border-b border-border bg-surface/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-md bg-violet-600 flex items-center justify-center text-white font-bold text-xs select-none">
               S
@@ -23,11 +23,11 @@ export default function AboutPage() {
         </div>
       </header>
 
-      <main className="flex-1 max-w-2xl mx-auto px-6 py-20">
+      <main className="flex-1 max-w-2xl mx-auto px-4 sm:px-6 py-12 sm:py-20 w-full">
         {/* Title */}
-        <div className="mb-12">
+        <div className="mb-10 sm:mb-12">
           <p className="text-xs text-violet-400 font-medium mb-3 uppercase tracking-widest">About</p>
-          <h1 className="text-4xl font-bold text-foreground leading-tight mb-4">
+          <h1 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight mb-4">
             Built for people who save too many tabs.
           </h1>
           <p className="text-muted text-base leading-relaxed">

@@ -79,12 +79,12 @@ export default function DashboardPage() {
 
   return (
     <div className="h-full overflow-y-auto flex flex-col">
-      <div className="px-8 pt-10 pb-8 max-w-5xl mx-auto w-full flex-1">
+      <div className="px-4 sm:px-6 md:px-8 pt-6 md:pt-10 pb-8 max-w-5xl mx-auto w-full flex-1">
 
         {/* ── Page header ── */}
-        <div className="flex items-start justify-between gap-4 mb-10">
-          <div>
-            <h1 className="text-2xl font-semibold text-foreground">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-8 md:mb-10">
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-2xl font-semibold text-foreground">
               Hey, {firstName} 👋
             </h1>
             <p className="text-sm text-muted mt-1">
@@ -95,16 +95,17 @@ export default function DashboardPage() {
           </div>
           <button
             onClick={() => setCreating(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium transition-colors cursor-pointer shrink-0"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium transition-colors cursor-pointer shrink-0 w-full sm:w-auto justify-center"
           >
             <span className="text-base leading-none">+</span>
-            New stash
+            <span className="hidden xs:inline">New stash</span>
+            <span className="xs:hidden">New</span>
           </button>
         </div>
 
         {/* ── Create input ── */}
         {creating && (
-          <div className="mb-8 p-4 rounded-xl border border-violet-500 bg-surface flex items-center gap-3">
+          <div className="mb-6 md:mb-8 p-3 sm:p-4 rounded-xl border border-violet-500 bg-surface flex items-center gap-3">
             <input
               ref={inputRef}
               value={newName}
@@ -136,14 +137,14 @@ export default function DashboardPage() {
         {lists.length === 0 && !creating ? (
           <EmptyState onNew={() => setCreating(true)} />
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             {lists.map((list) => (
               <ListCard key={list.id} list={list} />
             ))}
             {/* "New stash" ghost card */}
             <button
               onClick={() => setCreating(true)}
-              className="group flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border hover:border-violet-500/50 bg-transparent hover:bg-violet-600/5 transition-all cursor-pointer min-h-[172px] text-muted hover:text-violet-400"
+              className="group flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border hover:border-violet-500/50 bg-transparent hover:bg-violet-600/5 transition-all cursor-pointer min-h-[140px] sm:min-h-[172px] text-muted hover:text-violet-400"
             >
               <span className="text-2xl opacity-40 group-hover:opacity-100 transition-opacity">+</span>
               <span className="text-xs font-medium">New stash</span>

@@ -127,7 +127,7 @@ export default function SharePage() {
     <div className="min-h-screen bg-background">
       {/* ── nav ── */}
       <header className="sticky top-0 z-20 border-b border-border bg-background/90 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2 group">
             <div className="w-7 h-7 rounded-lg bg-violet-600 flex items-center justify-center text-white text-xs font-bold shadow-md shadow-violet-900/30">
               S
@@ -136,7 +136,7 @@ export default function SharePage() {
               Stashly
             </span>
           </a>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <span className="text-xs text-muted hidden sm:block">
               {totalItems} item{totalItems !== 1 ? "s" : ""}
               {totalPrice > 0 && <> · <span className="text-foreground font-medium">{fmt(totalPrice)}</span></>}
@@ -145,7 +145,7 @@ export default function SharePage() {
               onClick={handleCopy}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-violet-600/10 border border-violet-500/20 text-violet-400 hover:bg-violet-600/20 transition-colors cursor-pointer"
             >
-              {copied ? "✓ Copied!" : "⎘ Share link"}
+              {copied ? "✓ Copied!" : "⎘ Share"}
             </button>
           </div>
         </div>
@@ -153,10 +153,10 @@ export default function SharePage() {
 
       {/* ── hero ── */}
       <div className="border-b border-border bg-surface/50">
-        <div className="max-w-6xl mx-auto px-6 py-8">
-          <h1 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight">{list.name}</h1>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground leading-tight">{list.name}</h1>
           {list.description && (
-            <p className="text-muted mt-2 max-w-xl">{list.description}</p>
+            <p className="text-muted mt-2 max-w-xl text-sm sm:text-base">{list.description}</p>
           )}
           <p className="text-xs text-muted mt-3">
             Updated {timeAgo(list.updatedAt)}
@@ -180,12 +180,12 @@ export default function SharePage() {
         </div>
       </div>
 
-      {/* ── 2-col layout ── */}
-      <div className="max-w-6xl mx-auto px-6 py-8">
-        <div className="flex gap-8 items-start">
+      {/* ── layout: stacks on mobile, side-by-side on lg ── */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        <div className="flex flex-col lg:flex-row gap-8 items-start">
 
-          {/* ── LEFT: items ── */}
-          <main className="flex-1 min-w-0">
+          {/* ── LEFT / TOP: items ── */}
+          <main className="flex-1 min-w-0 w-full">
             {/* Tag filter pills */}
             {tags.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-6">
@@ -231,8 +231,8 @@ export default function SharePage() {
             )}
           </main>
 
-          {/* ── RIGHT: sidebar ── */}
-          <aside className="w-72 shrink-0 sticky top-24 hidden lg:flex flex-col gap-4">
+          {/* ── RIGHT / BOTTOM: sidebar ── */}
+          <aside className="w-full lg:w-72 lg:shrink-0 lg:sticky lg:top-24 flex flex-col gap-4">
 
             {/* Stats card */}
             <div className="rounded-2xl border border-border bg-surface p-5">
@@ -370,7 +370,7 @@ export default function SharePage() {
 
       {/* ── footer ── */}
       <footer className="border-t border-border mt-8">
-        <div className="max-w-6xl mx-auto px-6 py-6 flex items-center justify-between text-xs text-muted">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 flex items-center justify-between text-xs text-muted">
           <a href="/" className="hover:text-violet-400 transition-colors">
             Made with <span className="text-violet-400 font-medium">Stashly</span>
           </a>
@@ -448,12 +448,12 @@ function ShareItem({ item, index }: { item: StashItem; index: number }) {
         <img
           src={item.image}
           alt={item.name}
-          className={`w-20 h-20 rounded-xl object-cover border border-border shrink-0 transition-all ${
+          className={`w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover border border-border shrink-0 transition-all ${
             item.purchased ? "grayscale" : "group-hover:scale-[1.03]"
           }`}
         />
       ) : (
-        <div className="w-20 h-20 rounded-xl border border-border bg-surface-2 flex items-center justify-center text-muted text-2xl shrink-0">
+        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl border border-border bg-surface-2 flex items-center justify-center text-muted text-2xl shrink-0">
           ◈
         </div>
       )}

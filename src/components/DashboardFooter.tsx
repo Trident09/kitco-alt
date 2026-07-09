@@ -6,10 +6,10 @@ export default function DashboardFooter() {
 
   return (
     <footer className="border-t border-border mt-12">
-      <div className="max-w-4xl mx-auto px-8 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-8 py-6 sm:py-8">
 
         {/* Main row */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6">
 
           {/* Logo + tagline */}
           <div className="flex flex-col gap-1">
@@ -53,10 +53,10 @@ export default function DashboardFooter() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-6 pt-5 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="mt-4 sm:mt-6 pt-4 sm:pt-5 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3">
 
-          {/* Keyboard hints */}
-          <div className="flex items-center gap-3 text-[11px] text-muted/50 flex-wrap">
+          {/* Keyboard hints — hidden on mobile */}
+          <div className="hidden sm:flex items-center gap-3 text-[11px] text-muted/50 flex-wrap">
             <span className="uppercase tracking-wider font-medium text-muted/40">Shortcuts</span>
             <span className="flex items-center gap-1">
               <kbd className="px-1.5 py-0.5 rounded bg-surface-2 border border-border font-mono text-[10px]">N</kbd>

@@ -8,7 +8,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Nav */}
       <header className="border-b border-border bg-surface/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <Image src="/LOGO.svg" alt="Stashly" width={28} height={28} className="invert" />
             <span className="text-base font-semibold tracking-tight text-foreground">Stashly</span>
@@ -24,31 +24,31 @@ export default function LandingPage() {
 
       <main className="flex-1">
         {/* Hero */}
-        <section className="max-w-5xl mx-auto px-6 pt-24 pb-20 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-violet-500/30 bg-violet-600/10 text-violet-400 text-xs font-medium mb-8">
+        <section className="max-w-5xl mx-auto px-4 sm:px-6 pt-14 sm:pt-20 md:pt-24 pb-12 sm:pb-16 md:pb-20 text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-violet-500/30 bg-violet-600/10 text-violet-400 text-xs font-medium mb-6 sm:mb-8">
             <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
             Free to use · No credit card needed
           </div>
 
-          <h1 className="text-5xl sm:text-6xl font-bold text-foreground leading-tight tracking-tight mb-6">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-foreground leading-tight tracking-tight mb-4 sm:mb-6">
             Save what you want.<br />
             <span className="text-violet-400">Buy it when you&apos;re ready.</span>
           </h1>
 
-          <p className="text-lg text-muted max-w-xl mx-auto mb-10 leading-relaxed">
+          <p className="text-base sm:text-lg text-muted max-w-xl mx-auto mb-8 sm:mb-10 leading-relaxed">
             Stashly is your personal product wishlist. Paste a link, auto-fill the details, organize into lists, and share with anyone.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
               href="/login"
-              className="px-6 py-3 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-medium text-sm transition-colors shadow-lg shadow-violet-600/20"
+              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-medium text-sm transition-colors shadow-lg shadow-violet-600/20 text-center"
             >
               Start for free →
             </Link>
             <Link
               href="/about"
-              className="px-6 py-3 rounded-xl border border-border text-muted hover:text-foreground hover:border-violet-500/40 text-sm transition-colors"
+              className="w-full sm:w-auto px-6 py-3 rounded-xl border border-border text-muted hover:text-foreground hover:border-violet-500/40 text-sm transition-colors text-center"
             >
               Learn more
             </Link>
@@ -56,7 +56,7 @@ export default function LandingPage() {
         </section>
 
         {/* Feature grid */}
-        <section className="max-w-5xl mx-auto px-6 pb-24">
+        <section className="max-w-5xl mx-auto px-4 sm:px-6 pb-16 sm:pb-24">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {features.map((f) => (
               <div key={f.title} className="p-6 rounded-2xl border border-border bg-surface hover:border-violet-500/30 transition-colors">
@@ -72,8 +72,8 @@ export default function LandingPage() {
 
         {/* How it works */}
         <section className="border-t border-border bg-surface">
-          <div className="max-w-5xl mx-auto px-6 py-20">
-            <h2 className="text-2xl font-bold text-foreground text-center mb-12">How it works</h2>
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 py-14 sm:py-20">
+            <h2 className="text-xl sm:text-2xl font-bold text-foreground text-center mb-10 sm:mb-12">How it works</h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
               {steps.map((s, i) => (
                 <div key={s.title} className="flex flex-col items-center text-center gap-3">
@@ -89,10 +89,10 @@ export default function LandingPage() {
         </section>
 
         {/* CTA banner */}
-        <section className="max-w-5xl mx-auto px-6 py-20 text-center">
-          <div className="p-10 rounded-3xl border border-violet-500/20 bg-violet-600/5">
-            <h2 className="text-3xl font-bold text-foreground mb-3">Ready to get organized?</h2>
-            <p className="text-muted text-sm mb-8 max-w-md mx-auto">
+        <section className="max-w-5xl mx-auto px-4 sm:px-6 py-14 sm:py-20 text-center">
+          <div className="p-6 sm:p-10 rounded-3xl border border-violet-500/20 bg-violet-600/5">
+            <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">Ready to get organized?</h2>
+            <p className="text-muted text-sm mb-6 sm:mb-8 max-w-md mx-auto">
               Join and start saving products you love. It&apos;s free, fast, and private by default.
             </p>
             <Link

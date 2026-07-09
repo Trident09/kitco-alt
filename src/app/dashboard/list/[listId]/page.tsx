@@ -199,21 +199,21 @@ export default function ListDetailPage() {
 
       {/* ── Sticky header zone ── */}
       <div className="shrink-0 bg-background border-b border-border">
-        <div className="px-8 pt-8 pb-4 max-w-4xl mx-auto">
+        <div className="px-4 sm:px-6 md:px-8 pt-5 md:pt-8 pb-4 max-w-4xl mx-auto">
 
           {/* Back + title row */}
           <div className="mb-4">
             <button
               onClick={() => router.push("/dashboard")}
-              className="text-xs text-muted hover:text-foreground mb-4 flex items-center gap-1 cursor-pointer"
+              className="text-xs text-muted hover:text-foreground mb-3 md:mb-4 flex items-center gap-1 cursor-pointer"
             >
               ← Back
             </button>
 
-            <div className="flex items-start justify-between gap-4">
-              <div>
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <h1 className="text-2xl font-semibold text-foreground">{list.name}</h1>
+                  <h1 className="text-xl md:text-2xl font-semibold text-foreground">{list.name}</h1>
                   <span className={`text-xs px-2 py-0.5 rounded-full ${
                     list.isPublic ? "bg-violet-600/20 text-violet-400" : "bg-surface-2 text-muted"
                   }`}>
@@ -223,7 +223,7 @@ export default function ListDetailPage() {
                 {list.description && (
                   <p className="text-sm text-muted mt-1">{list.description}</p>
                 )}
-                <div className="flex items-center gap-3 mt-1.5 text-xs text-muted flex-wrap">
+                <div className="flex items-center gap-2 sm:gap-3 mt-1.5 text-xs text-muted flex-wrap">
                   <span>{items.length} item{items.length !== 1 ? "s" : ""}</span>
                   {hasAnyTags && (
                     <>
@@ -246,7 +246,7 @@ export default function ListDetailPage() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                 <button
                   onClick={() => router.push(`/dashboard/list/${list.id}/settings`)}
                   className="p-2 rounded-lg text-muted hover:text-foreground hover:bg-surface border border-transparent hover:border-border transition-colors cursor-pointer"
@@ -257,20 +257,21 @@ export default function ListDetailPage() {
                 {hasAnyTags && (
                   <button
                     onClick={() => setShowManageTags(true)}
-                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-muted hover:text-foreground hover:bg-surface border border-transparent hover:border-border transition-colors cursor-pointer"
+                    className="flex items-center gap-1.5 px-2 sm:px-3 py-2 rounded-lg text-sm text-muted hover:text-foreground hover:bg-surface border border-transparent hover:border-border transition-colors cursor-pointer"
                     title="Manage tag order"
                   >
                     <span className="text-base leading-none">⠿</span>
-                    Tags
+                    <span className="hidden sm:inline">Tags</span>
                   </button>
                 )}
                 <button
                   onClick={() => setShowModal(true)}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium cursor-pointer"
+                  className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium cursor-pointer"
                   title="Add item (N)"
                 >
                   <span className="text-base leading-none">+</span>
-                  Add item
+                  <span className="hidden xs:inline">Add item</span>
+                  <span className="xs:hidden">Add</span>
                   <kbd className="hidden sm:inline-flex items-center text-[10px] px-1 py-0.5 rounded bg-violet-700/60 text-violet-300 font-mono ml-1">N</kbd>
                 </button>
               </div>
@@ -288,7 +289,7 @@ export default function ListDetailPage() {
                   if (e.key === "Escape") { setSearch(""); searchRef.current?.blur(); }
                 }}
                 placeholder="Search items…"
-                className="input max-w-sm"
+                className="input w-full sm:max-w-sm"
               />
               {allTags.length > 0 && (
                 <div className="flex flex-wrap gap-1.5">
@@ -323,7 +324,7 @@ export default function ListDetailPage() {
 
       {/* ── Scrollable content ── */}
       <div className="overflow-y-auto flex-1 flex flex-col">
-        <div className="px-8 py-8 max-w-4xl mx-auto w-full flex-1">
+        <div className="px-4 sm:px-6 md:px-8 py-6 md:py-8 max-w-4xl mx-auto w-full flex-1">
       {filtered.length === 0 ? (
         /* Empty state */
         <div className="flex flex-col items-center justify-center py-24 text-center">
@@ -518,15 +519,15 @@ function ItemRow({
 
   return (
     <>
-      <div className={`group flex gap-4 p-4 rounded-xl border bg-surface transition-all border-border hover:border-violet-500/40 ${item.purchased ? "opacity-60" : ""}`}>
+      <div className={`group flex gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl border bg-surface transition-all border-border hover:border-violet-500/40 ${item.purchased ? "opacity-60" : ""}`}>
         {item.image ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={item.image} alt={item.name}
-            className={`w-16 h-16 rounded-lg object-cover border border-border shrink-0 ${item.purchased ? "grayscale" : ""}`}
+            className={`w-14 h-14 sm:w-16 sm:h-16 rounded-lg object-cover border border-border shrink-0 ${item.purchased ? "grayscale" : ""}`}
           />
         ) : (
-          <div className="w-16 h-16 rounded-lg border border-border bg-surface-2 flex items-center justify-center text-muted text-xl shrink-0">◈</div>
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg border border-border bg-surface-2 flex items-center justify-center text-muted text-xl shrink-0">◈</div>
         )}
 
         <div className="flex-1 min-w-0">
@@ -547,8 +548,8 @@ function ItemRow({
               </div>
             </div>
 
-            {/* Action buttons — visible on hover */}
-            <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+            {/* Action buttons — always visible on mobile, hover on desktop */}
+            <div className="flex items-center gap-1 shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
               <button
                 onClick={onTogglePurchased}
                 title={item.purchased ? "Mark as unpurchased" : "Mark as purchased"}
@@ -635,9 +636,9 @@ function SortableItem({
         {item.image ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={item.image} alt={item.name}
-            className={`w-16 h-16 rounded-lg object-cover border border-border shrink-0 ${item.purchased ? "grayscale" : ""}`} />
+            className={`w-14 h-14 sm:w-16 sm:h-16 rounded-lg object-cover border border-border shrink-0 ${item.purchased ? "grayscale" : ""}`} />
         ) : (
-          <div className="w-16 h-16 rounded-lg border border-border bg-surface-2 flex items-center justify-center text-muted text-xl shrink-0">◈</div>
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg border border-border bg-surface-2 flex items-center justify-center text-muted text-xl shrink-0">◈</div>
         )}
 
         <div className="flex-1 min-w-0">
@@ -653,7 +654,8 @@ function SortableItem({
                 {item.purchased && <span className="text-xs text-green-400 font-medium">✓ Purchased</span>}
               </div>
             </div>
-            <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+            {/* Action buttons — always visible on mobile, hover on desktop */}
+            <div className="flex items-center gap-1 shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
               <button onClick={onTogglePurchased}
                 title={item.purchased ? "Mark as unpurchased" : "Mark as purchased"}
                 className={`p-1.5 rounded-md text-xs cursor-pointer transition-colors ${

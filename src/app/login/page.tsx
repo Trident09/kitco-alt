@@ -83,7 +83,7 @@ export default function LoginPage() {
 				</nav>
 			</div>
 			{/* Right — sign in */}
-			<div className="flex flex-1 items-center justify-center p-8">
+			<div className="flex flex-1 items-center justify-center p-6 sm:p-8">
 				<div className="w-full max-w-sm flex flex-col gap-8">
 					{/* Mobile logo */}
 					<div className="flex lg:hidden">

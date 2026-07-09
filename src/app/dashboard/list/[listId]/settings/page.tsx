@@ -65,7 +65,7 @@ export default function StashSettingsPage() {
 
   return (
     <div className="h-full overflow-y-auto flex flex-col">
-    <div className="p-8 max-w-xl mx-auto flex-1">
+    <div className="p-4 sm:p-6 md:p-8 max-w-xl mx-auto flex-1 w-full">
       {/* Back */}
       <button
         onClick={() => router.push(`/dashboard/list/${listId}`)}
