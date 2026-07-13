@@ -24,7 +24,8 @@ import { useToast } from "@/context/ToastContext";
 type ItemFormData = Pick<StashItem, "name" | "url" | "image" | "price" | "description" | "notes" | "tags">;
 
 function parsePrice(price: string): number {
-  const cleaned = price.replace(/[^0-9.,]/g, "").replace(",", "");
+  // Strip everything except digits and dot, remove all commas (Indian formatting e.g. ₹2,92,602)
+  const cleaned = price.replace(/[^0-9.,]/g, "").replace(/,/g, "");
   const num = parseFloat(cleaned);
   return isNaN(num) ? 0 : num;
 }
@@ -548,8 +549,8 @@ function ItemRow({
               </div>
             </div>
 
-            {/* Action buttons — always visible on mobile, hover on desktop */}
-            <div className="flex items-center gap-1 shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+            {/* Action buttons — always visible on touch devices, hover-reveal on pointer devices */}
+            <div className="flex items-center gap-1 shrink-0 opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity">
               <button
                 onClick={onTogglePurchased}
                 title={item.purchased ? "Mark as unpurchased" : "Mark as purchased"}
@@ -654,8 +655,8 @@ function SortableItem({
                 {item.purchased && <span className="text-xs text-green-400 font-medium">✓ Purchased</span>}
               </div>
             </div>
-            {/* Action buttons — always visible on mobile, hover on desktop */}
-            <div className="flex items-center gap-1 shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+            {/* Action buttons — always visible on touch devices, hover-reveal on pointer devices */}
+            <div className="flex items-center gap-1 shrink-0 opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity">
               <button onClick={onTogglePurchased}
                 title={item.purchased ? "Mark as unpurchased" : "Mark as purchased"}
                 className={`p-1.5 rounded-md text-xs cursor-pointer transition-colors ${

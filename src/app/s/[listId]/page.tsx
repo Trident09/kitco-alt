@@ -8,7 +8,8 @@ import type { StashList, StashItem } from "@/types";
 /* ─── helpers ─────────────────────────────────────────────── */
 
 function parsePrice(price: string): number {
-  const cleaned = price.replace(/[^0-9.,]/g, "").replace(",", "");
+  // Strip everything except digits and dot, remove all commas (Indian formatting e.g. ₹2,92,602)
+  const cleaned = price.replace(/[^0-9.,]/g, "").replace(/,/g, "");
   const num = parseFloat(cleaned);
   return isNaN(num) ? 0 : num;
 }
