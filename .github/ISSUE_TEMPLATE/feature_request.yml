@@ -1,0 +1,57 @@
+name: Feature request
+description: Suggest an idea or improvement for Stashly.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before opening a feature request, please check that a similar one doesn't already exist.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Describe the need or frustration this feature would address.
+      placeholder: I find it frustrating when…
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: Describe what you'd like to see. Mockups, sketches, or examples are very welcome.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you've considered
+      description: Any other approaches you thought about, and why you prefer your proposal.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: Which part of Stashly does this touch?
+      multiple: true
+      options:
+        - Dashboard / stash list
+        - Item management
+        - Tags & filtering
+        - Drag & drop / reordering
+        - Public share page
+        - URL scraping / auto-fill
+        - Auth / account
+        - Performance
+        - Accessibility
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Anything else that would help us understand the request.

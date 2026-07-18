@@ -1,0 +1,22 @@
+name: Question / support
+description: Ask a question about using or setting up Stashly.
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For setup problems, please read the [README](../../README.md) and [CONTRIBUTING guide](../../CONTRIBUTING.md) first.
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your question
+      description: Be as specific as possible. Include relevant config, error messages, or steps you've already tried.
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Environment details, relevant code snippets, or anything else that helps.
