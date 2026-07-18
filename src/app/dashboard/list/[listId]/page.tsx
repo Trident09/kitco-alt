@@ -140,6 +140,12 @@ export default function ListDetailPage() {
     showToast(next ? `Marked "${item.name}" as purchased` : `Unmarked "${item.name}"`);
   }
 
+  async function handleToggleExclude(item: StashItem) {
+    const next = !item.excludeFromTotal;
+    await updateItem(item.id, { excludeFromTotal: next });
+    showToast(next ? `"${item.name}" excluded from total` : `"${item.name}" included in total`);
+  }
+
   async function handleManageTagsSave(
     newOrder: string[],
     renames: Record<string, string>,
@@ -180,7 +186,8 @@ export default function ListDetailPage() {
     return matchesSearch && matchesTag;
   });
 
-  const totalPrice = items.reduce((sum, i) => sum + parsePrice(i.price), 0);
+  const totalPrice = items.filter((i) => !i.excludeFromTotal).reduce((sum, i) => sum + parsePrice(i.price), 0);
+  const excludedCount = items.filter((i) => i.excludeFromTotal).length;
   const purchasedCount = items.filter((i) => i.purchased).length;
 
   const handleTagClick = useCallback((tag: string) => {
@@ -242,6 +249,12 @@ export default function ListDetailPage() {
                     <>
                       <span>·</span>
                       <span className="text-green-400">{purchasedCount} purchased</span>
+                    </>
+                  )}
+                  {excludedCount > 0 && (
+                    <>
+                      <span>·</span>
+                      <span className="text-muted">{excludedCount} excluded</span>
                     </>
                   )}
                 </div>
@@ -355,6 +368,7 @@ export default function ListDetailPage() {
                   onEdit={() => setEditItem(item)}
                   onDelete={() => handleDelete(item)}
                   onTogglePurchased={() => handleTogglePurchased(item)}
+                  onToggleExclude={() => handleToggleExclude(item)}
                   onTagClick={handleTagClick}
                   activeTag={activeTag}
                 />
@@ -375,6 +389,7 @@ export default function ListDetailPage() {
               onEdit={setEditItem}
               onDelete={handleDelete}
               onTogglePurchased={handleTogglePurchased}
+              onToggleExclude={handleToggleExclude}
               onTagClick={handleTagClick}
               activeTag={activeTag}
             />
@@ -388,6 +403,7 @@ export default function ListDetailPage() {
               onEdit={setEditItem}
               onDelete={handleDelete}
               onTogglePurchased={handleTogglePurchased}
+              onToggleExclude={handleToggleExclude}
               onTagClick={handleTagClick}
               activeTag={activeTag}
             />
@@ -430,7 +446,7 @@ export default function ListDetailPage() {
 /* ─── Tag Section ─────────────────────────────────────────── */
 
 function TagSection({
-  tag, items, allSectionCount, onEdit, onDelete, onTogglePurchased, onTagClick, activeTag,
+  tag, items, allSectionCount, onEdit, onDelete, onTogglePurchased, onToggleExclude, onTagClick, activeTag,
 }: {
   tag: string;
   items: StashItem[];
@@ -438,11 +454,12 @@ function TagSection({
   onEdit: (item: StashItem) => void;
   onDelete: (item: StashItem) => void;
   onTogglePurchased: (item: StashItem) => void;
+  onToggleExclude: (item: StashItem) => void;
   onTagClick: (tag: string) => void;
   activeTag: string | null;
 }) {
   const isUntagged = tag === "";
-  const sectionPrice = items.reduce((s, i) => s + parsePrice(i.price), 0);
+  const sectionPrice = items.filter((i) => !i.excludeFromTotal).reduce((s, i) => s + parsePrice(i.price), 0);
   const purchasedHere = items.filter((i) => i.purchased).length;
 
   return (
@@ -495,6 +512,7 @@ function TagSection({
             onEdit={() => onEdit(item)}
             onDelete={() => onDelete(item)}
             onTogglePurchased={() => onTogglePurchased(item)}
+            onToggleExclude={() => onToggleExclude(item)}
             onTagClick={onTagClick}
             activeTag={activeTag}
           />
@@ -507,12 +525,13 @@ function TagSection({
 /* ─── Item row (inside a tag section) ────────────────────── */
 
 function ItemRow({
-  item, onEdit, onDelete, onTogglePurchased, onTagClick, activeTag,
+  item, onEdit, onDelete, onTogglePurchased, onToggleExclude, onTagClick, activeTag,
 }: {
   item: StashItem;
   onEdit: () => void;
   onDelete: () => void;
   onTogglePurchased: () => void;
+  onToggleExclude: () => void;
   onTagClick: (tag: string) => void;
   activeTag: string | null;
 }) {
@@ -520,7 +539,7 @@ function ItemRow({
 
   return (
     <>
-      <div className={`group flex gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl border bg-surface transition-all border-border hover:border-violet-500/40 ${item.purchased ? "opacity-60" : ""}`}>
+      <div className={`group flex gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl border bg-surface transition-all ${item.excludeFromTotal ? "border-dashed border-border/60" : "border-border"} hover:border-violet-500/40 ${item.purchased ? "opacity-60" : ""}`}>
         {item.image ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -539,12 +558,15 @@ function ItemRow({
               </h3>
               <div className="flex items-center gap-2">
                 {item.price && (
-                  <span className={`text-sm font-medium ${item.purchased ? "text-muted line-through" : "text-violet-400"}`}>
+                  <span className={`text-sm font-medium ${item.purchased ? "text-muted line-through" : item.excludeFromTotal ? "text-muted line-through" : "text-violet-400"}`}>
                     {item.price}
                   </span>
                 )}
                 {item.purchased && (
                   <span className="text-xs text-green-400 font-medium">✓ Purchased</span>
+                )}
+                {item.excludeFromTotal && (
+                  <span className="text-xs text-muted font-medium">excluded from total</span>
                 )}
               </div>
             </div>
@@ -558,6 +580,13 @@ function ItemRow({
                   item.purchased ? "text-green-400 hover:text-muted hover:bg-surface-2" : "text-muted hover:text-green-400 hover:bg-surface-2"
                 }`}
               >✓</button>
+              <button
+                onClick={onToggleExclude}
+                title={item.excludeFromTotal ? "Include in total" : "Exclude from total"}
+                className={`p-1.5 rounded-md text-xs cursor-pointer transition-colors ${
+                  item.excludeFromTotal ? "text-amber-400 hover:text-muted hover:bg-surface-2" : "text-muted hover:text-amber-400 hover:bg-surface-2"
+                }`}
+              >Σ</button>
               {item.url && (
                 <a href={item.url} target="_blank" rel="noopener noreferrer"
                   className="p-1.5 rounded-md text-muted hover:text-foreground hover:bg-surface-2 text-xs" title="Open link">↗</a>
@@ -609,12 +638,13 @@ function ItemRow({
 /* ─── Sortable item (flat view, no tags exist) ────────────── */
 
 function SortableItem({
-  item, onEdit, onDelete, onTogglePurchased, onTagClick, activeTag,
+  item, onEdit, onDelete, onTogglePurchased, onToggleExclude, onTagClick, activeTag,
 }: {
   item: StashItem;
   onEdit: () => void;
   onDelete: () => void;
   onTogglePurchased: () => void;
+  onToggleExclude: () => void;
   onTagClick: (tag: string) => void;
   activeTag: string | null;
 }) {
@@ -627,7 +657,7 @@ function SortableItem({
       <div
         ref={setNodeRef} style={style}
         className={`group flex gap-4 p-4 rounded-xl border bg-surface transition-all ${
-          isDragging ? "border-violet-500 opacity-80 shadow-lg" : "border-border hover:border-violet-500/40"
+          isDragging ? "border-violet-500 opacity-80 shadow-lg" : item.excludeFromTotal ? "border-dashed border-border/60 hover:border-violet-500/40" : "border-border hover:border-violet-500/40"
         } ${item.purchased ? "opacity-60" : ""}`}
       >
         <button {...attributes} {...listeners}
@@ -650,9 +680,12 @@ function SortableItem({
               </h3>
               <div className="flex items-center gap-2">
                 {item.price && (
-                  <span className={`text-sm font-medium ${item.purchased ? "text-muted line-through" : "text-violet-400"}`}>{item.price}</span>
+                  <span className={`text-sm font-medium ${item.purchased ? "text-muted line-through" : item.excludeFromTotal ? "text-muted line-through" : "text-violet-400"}`}>{item.price}</span>
                 )}
                 {item.purchased && <span className="text-xs text-green-400 font-medium">✓ Purchased</span>}
+                {item.excludeFromTotal && (
+                  <span className="text-xs text-muted font-medium">excluded from total</span>
+                )}
               </div>
             </div>
             {/* Action buttons — always visible on touch devices, hover-reveal on pointer devices */}
@@ -662,6 +695,13 @@ function SortableItem({
                 className={`p-1.5 rounded-md text-xs cursor-pointer transition-colors ${
                   item.purchased ? "text-green-400 hover:text-muted hover:bg-surface-2" : "text-muted hover:text-green-400 hover:bg-surface-2"
                 }`}>✓</button>
+              <button
+                onClick={onToggleExclude}
+                title={item.excludeFromTotal ? "Include in total" : "Exclude from total"}
+                className={`p-1.5 rounded-md text-xs cursor-pointer transition-colors ${
+                  item.excludeFromTotal ? "text-amber-400 hover:text-muted hover:bg-surface-2" : "text-muted hover:text-amber-400 hover:bg-surface-2"
+                }`}
+              >Σ</button>
               {item.url && (
                 <a href={item.url} target="_blank" rel="noopener noreferrer"
                   className="p-1.5 rounded-md text-muted hover:text-foreground hover:bg-surface-2 text-xs" title="Open link">↗</a>

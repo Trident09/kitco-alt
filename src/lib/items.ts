@@ -21,6 +21,7 @@ function toItem(id: string, data: Record<string, unknown>): StashItem {
     notes: (data.notes as string) ?? "",
     tags: (data.tags as string[]) ?? [],
     purchased: (data.purchased as boolean) ?? false,
+    excludeFromTotal: (data.excludeFromTotal as boolean) ?? false,
     order: (data.order as number) ?? 0,
     createdAt: ts(data.createdAt),
     updatedAt: ts(data.updatedAt),
@@ -49,14 +50,16 @@ export function subscribeItems(listId: string, uid: string, cb: (items: StashIte
   });
 }
 
-export type ItemInput = Omit<StashItem, "id" | "createdAt" | "updatedAt" | "order"> & {
+export type ItemInput = Omit<StashItem, "id" | "createdAt" | "updatedAt" | "order" | "excludeFromTotal"> & {
   purchased?: boolean;
+  excludeFromTotal?: boolean;
 };
 
 export async function createItem(input: ItemInput, order: number): Promise<string> {
   const ref = await addDoc(collection(db, "items"), {
     ...input,
     purchased: input.purchased ?? false,
+    excludeFromTotal: input.excludeFromTotal ?? false,
     order,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),

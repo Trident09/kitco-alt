@@ -22,7 +22,8 @@ export interface StashItem {
   description: string;
   notes: string;
   tags: string[];
-  purchased: boolean;  // mark as purchased
+  purchased: boolean;        // mark as purchased
+  excludeFromTotal: boolean; // omit this item's price from the stash total
   order: number;
   createdAt: number;
   updatedAt: number;

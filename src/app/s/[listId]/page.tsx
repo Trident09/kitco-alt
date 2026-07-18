@@ -87,8 +87,8 @@ export default function SharePage() {
   const purchasedCount = purchasedItems.length;
   const progressPct = totalItems > 0 ? Math.round((purchasedCount / totalItems) * 100) : 0;
 
-  const totalPrice = items.reduce((s, i) => s + parsePrice(i.price), 0);
-  const purchasedPrice = purchasedItems.reduce((s, i) => s + parsePrice(i.price), 0);
+  const totalPrice = items.filter((i) => !i.excludeFromTotal).reduce((s, i) => s + parsePrice(i.price), 0);
+  const purchasedPrice = purchasedItems.filter((i) => !i.excludeFromTotal).reduce((s, i) => s + parsePrice(i.price), 0);
   const remainingPrice = totalPrice - purchasedPrice;
 
   /* tag frequencies */
@@ -101,6 +101,7 @@ export default function SharePage() {
   /* price buckets for each tag */
   const tagPriceMap = new Map<string, number>();
   for (const item of items) {
+    if (item.excludeFromTotal) continue;
     const p = parsePrice(item.price);
     if (p > 0) {
       for (const t of item.tags) tagPriceMap.set(t, (tagPriceMap.get(t) ?? 0) + p);
@@ -435,6 +436,8 @@ function ShareItem({ item, index }: { item: StashItem; index: number }) {
       className={`group relative flex gap-4 p-4 rounded-2xl border transition-all duration-200 ${
         item.purchased
           ? "border-border bg-surface opacity-60"
+          : item.excludeFromTotal
+          ? "border-dashed border-border/50 bg-surface opacity-70"
           : "border-border bg-surface hover:border-violet-500/40 hover:bg-surface/80 hover:shadow-lg hover:shadow-violet-900/10"
       }`}
     >
@@ -480,7 +483,7 @@ function ShareItem({ item, index }: { item: StashItem; index: number }) {
             {item.price && (
               <span
                 className={`text-sm font-bold block ${
-                  item.purchased ? "line-through text-muted" : "text-violet-400"
+                  item.purchased ? "line-through text-muted" : item.excludeFromTotal ? "line-through text-muted" : "text-violet-400"
                 }`}
               >
                 {item.price}
@@ -492,7 +495,10 @@ function ShareItem({ item, index }: { item: StashItem; index: number }) {
                 Purchased
               </span>
             )}
-            {!item.purchased && price > 0 && (
+            {!item.purchased && item.excludeFromTotal && (
+              <span className="text-xs text-muted font-medium mt-0.5 block">not counted</span>
+            )}
+            {!item.purchased && !item.excludeFromTotal && price > 0 && (
               <span className="text-[10px] text-muted mt-0.5 block">
                 {price < 50 ? "Budget pick" : price < 200 ? "Mid-range" : "Premium"}
               </span>
