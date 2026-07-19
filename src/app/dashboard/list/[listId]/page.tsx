@@ -23,6 +23,14 @@ import { useToast } from "@/context/ToastContext";
 
 type ItemFormData = Pick<StashItem, "name" | "url" | "image" | "price" | "description" | "notes" | "tags">;
 
+function getDomain(url: string): string | null {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return null;
+  }
+}
+
 function parsePrice(price: string): number {
   // Strip everything except digits and dot, remove all commas (Indian formatting e.g. ₹2,92,602)
   const cleaned = price.replace(/[^0-9.,]/g, "").replace(/,/g, "");
@@ -587,10 +595,6 @@ function ItemRow({
                   item.excludeFromTotal ? "text-amber-400 hover:text-muted hover:bg-surface-2" : "text-muted hover:text-amber-400 hover:bg-surface-2"
                 }`}
               >Σ</button>
-              {item.url && (
-                <a href={item.url} target="_blank" rel="noopener noreferrer"
-                  className="p-1.5 rounded-md text-muted hover:text-foreground hover:bg-surface-2 text-xs" title="Open link">↗</a>
-              )}
               <button onClick={onEdit}
                 className="p-1.5 rounded-md text-muted hover:text-foreground hover:bg-surface-2 text-xs cursor-pointer">✎</button>
               <button onClick={() => setShowDelete(true)}
@@ -603,6 +607,16 @@ function ItemRow({
           )}
           {item.notes && (
             <p className="text-xs text-muted/70 mt-1 italic line-clamp-1">&ldquo;{item.notes}&rdquo;</p>
+          )}
+          {item.url && getDomain(item.url) && (
+            <a
+              href={item.url} target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 mt-1.5 text-[11px] text-muted hover:text-foreground transition-colors"
+            >
+              <span>🔗</span>
+              <span className="truncate max-w-[180px]">{getDomain(item.url)}</span>
+              <span className="text-[10px]">↗</span>
+            </a>
           )}
 
           {/* Tags — clicking them filters to that tag */}
@@ -702,10 +716,6 @@ function SortableItem({
                   item.excludeFromTotal ? "text-amber-400 hover:text-muted hover:bg-surface-2" : "text-muted hover:text-amber-400 hover:bg-surface-2"
                 }`}
               >Σ</button>
-              {item.url && (
-                <a href={item.url} target="_blank" rel="noopener noreferrer"
-                  className="p-1.5 rounded-md text-muted hover:text-foreground hover:bg-surface-2 text-xs" title="Open link">↗</a>
-              )}
               <button onClick={onEdit}
                 className="p-1.5 rounded-md text-muted hover:text-foreground hover:bg-surface-2 text-xs cursor-pointer">✎</button>
               <button onClick={() => setShowDelete(true)}
@@ -714,6 +724,16 @@ function SortableItem({
           </div>
           {item.description && <p className="text-xs text-muted mt-1 line-clamp-2">{item.description}</p>}
           {item.notes && <p className="text-xs text-muted/70 mt-1 italic line-clamp-1">&ldquo;{item.notes}&rdquo;</p>}
+          {item.url && getDomain(item.url) && (
+            <a
+              href={item.url} target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 mt-1.5 text-[11px] text-muted hover:text-foreground transition-colors"
+            >
+              <span>🔗</span>
+              <span className="truncate max-w-[180px]">{getDomain(item.url)}</span>
+              <span className="text-[10px]">↗</span>
+            </a>
+          )}
           {item.tags.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-2">
               {item.tags.map((t) => (

@@ -7,6 +7,14 @@ import type { StashList, StashItem } from "@/types";
 
 /* ─── helpers ─────────────────────────────────────────────── */
 
+function getDomain(url: string): string | null {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return null;
+  }
+}
+
 function parsePrice(price: string): number {
   // Strip everything except digits and dot, remove all commas (Indian formatting e.g. ₹2,92,602)
   const cleaned = price.replace(/[^0-9.,]/g, "").replace(/,/g, "");
@@ -528,9 +536,12 @@ function ShareItem({ item, index }: { item: StashItem; index: number }) {
               href={item.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="ml-auto flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300 transition-colors group/link"
+              className="ml-auto flex items-center gap-1 text-xs text-muted hover:text-foreground transition-colors group/link shrink-0"
             >
-              <span className="group-hover/link:underline">View product</span>
+              <span>🔗</span>
+              <span className="group-hover/link:underline truncate max-w-[140px]">
+                {getDomain(item.url) ?? "View product"}
+              </span>
               <span className="text-[10px]">↗</span>
             </a>
           )}
